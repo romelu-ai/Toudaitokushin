@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>漢文重要単語300 | 単語帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper: #f1ecdd;
+  --paper-deep: #e8e0cc;
+  --ink: #26241f;
+  --ink-soft: #514c40;
+  --indigo: #33465a;
+  --seal: #ac3b26;
+  --seal-deep: #8c2e1c;
+  --gold: #a9863f;
+  --line: rgba(38,36,31,0.16);
+  --card-shadow: 0 1px 0 rgba(38,36,31,0.06), 0 18px 40px -22px rgba(38,36,31,0.45);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1200px 700px at 85% -10%, rgba(172,59,38,0.07), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(51,70,90,0.08), transparent 55%),
+    var(--paper);
+  color:var(--ink);
+  font-family:'Noto Sans JP', sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+body.dark{
+  --paper:#1b1a17;
+  --paper-deep:#242220;
+  --ink:#eee6d3;
+  --ink-soft:#c9bfa8;
+  --indigo:#9fb3c8;
+  --seal:#e0684a;
+  --seal-deep:#c94f34;
+  --gold:#d8b76a;
+  --line: rgba(238,230,211,0.14);
+  --card-shadow: 0 1px 0 rgba(0,0,0,0.4), 0 18px 40px -22px rgba(0,0,0,0.7);
+}
+
+.paper-texture{
+  position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0.5;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(38,36,31,0.015) 0px, rgba(38,36,31,0.015) 1px, transparent 1px, transparent 3px);
+}
+body.dark .paper-texture{
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+}
+
+.wrap{
+  position:relative; z-index:1;
+  max-width:920px;
+  margin:0 auto;
+  padding:28px 20px 80px;
+}
+
+/* ---------- Header ---------- */
+header.top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  padding-bottom:22px;
+  margin-bottom:26px;
+  border-bottom:1px solid var(--line);
+}
+.title-block{display:flex; align-items:baseline; gap:14px;}
+.seal-mark{
+  flex:none;
+  width:40px; height:40px;
+  border-radius:6px;
+  background:var(--seal);
+  color:#f6ede0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:17px;
+  letter-spacing:0;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+  transform:rotate(-3deg);
+}
+h1{
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:26px;
+  margin:0;
+  letter-spacing:0.02em;
+}
+.sub{
+  font-size:12.5px;
+  color:var(--ink-soft);
+  margin-top:3px;
+  letter-spacing:0.03em;
+}
+#theme-toggle{
+  flex:none;
+  border:1px solid var(--line);
+  background:transparent;
+  color:var(--ink);
+  width:38px;height:38px;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s;
+}
+#theme-toggle:hover{background:var(--paper-deep);}
+#theme-toggle svg{width:17px;height:17px;}
+#theme-toggle #sun{display:none;}
+body.dark #theme-toggle #moon{display:none;}
+body.dark #theme-toggle #sun{display:block;}
+
+/* ---------- Nav tabs ---------- */
+.tabs{
+  display:flex;
+  gap:6px;
+  margin-bottom:22px;
+  flex-wrap:wrap;
+}
+.tab-btn{
+  font-family:'Noto Sans JP', sans-serif;
+  font-size:13.5px;
+  font-weight:600;
+  padding:9px 16px;
+  border-radius:20px;
+  border:1px solid var(--line);
+  background:transparent;
+  color:var(--ink-soft);
+  cursor:pointer;
+  transition:all .18s;
+}
+.tab-btn:hover{ color:var(--ink); }
+.tab-btn.active{
+  background:var(--ink);
+  color:var(--paper);
+  border-color:var(--ink);
+}
+
+.view{ display:none; }
+.view.active{ display:block; }
+
+/* ---------- Controls row (group filter + progress) ---------- */
+.controls-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+}
+select#group-select, select#group-select-list{
+  font-family:'Noto Sans JP', sans-serif;
+  font-size:13.5px;
+  padding:8px 12px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+}
+.progress-line{
+  font-size:12.5px;
+  color:var(--ink-soft);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.progress-track{
+  width:110px;height:6px;border-radius:4px;
+  background:var(--line);
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:var(--seal);
+  border-radius:4px;
+  transition:width .3s;
+}
+
+/* ---------- Flashcard ---------- */
+.stage{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+}
+.card-index{
+  font-size:12px;
+  letter-spacing:0.12em;
+  color:var(--ink-soft);
+  font-family:'Noto Sans JP', sans-serif;
+}
+.card-outer{
+  perspective:1600px;
+  width:100%;
+  max-width:520px;
+  height:340px;
+}
+.card-inner{
+  position:relative;
+  width:100%;height:100%;
+  transition:transform .5s cubic-bezier(.2,.8,.2,1);
+  transform-style:preserve-3d;
+  cursor:pointer;
+}
+.card-inner.flipped{ transform:rotateY(180deg); }
+.face{
+  position:absolute; inset:0;
+  border-radius:14px;
+  background:var(--paper);
+  box-shadow:var(--card-shadow);
+  border:1px solid var(--line);
+  backface-visibility:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:30px;
+  text-align:center;
+}
+.face.back{ transform:rotateY(180deg); }
+.face .group-chip{
+  position:absolute;
+  top:16px; left:18px;
+  font-size:11px;
+  color:var(--ink-soft);
+  border:1px solid var(--line);
+  padding:3px 9px;
+  border-radius:12px;
+  letter-spacing:0.04em;
+}
+.mastered-mark{
+  position:absolute;
+  top:14px; right:16px;
+  width:34px;height:34px;
+  border-radius:50%;
+  border:2px solid var(--seal);
+  color:var(--seal);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+  background:transparent;
+  transform:rotate(-6deg);
+  opacity:0.25;
+  transition:opacity .2s, transform .2s;
+}
+.mastered-mark.on{ opacity:1; background:rgba(172,59,38,0.08); }
+.mastered-mark:hover{ transform:rotate(-6deg) scale(1.06); }
+
+.kanji-big{
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:56px;
+  line-height:1.15;
+  word-break:keep-all;
+}
+.hint-text{
+  margin-top:14px;
+  font-size:12px;
+  color:var(--ink-soft);
+  letter-spacing:0.05em;
+}
+.reading-big{
+  font-family:'Noto Sans JP', sans-serif;
+  font-weight:700;
+  font-size:22px;
+  color:var(--seal-deep);
+  margin-bottom:14px;
+}
+.meaning-text{
+  font-size:15.5px;
+  line-height:1.85;
+  color:var(--ink);
+  max-height:210px;
+  overflow-y:auto;
+  padding:0 4px;
+}
+
+.nav-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  margin-top:4px;
+}
+.nav-btn{
+  font-family:'Noto Sans JP', sans-serif;
+  font-size:13.5px;
+  font-weight:600;
+  padding:10px 20px;
+  border-radius:24px;
+  border:1px solid var(--line);
+  background:transparent;
+  color:var(--ink);
+  cursor:pointer;
+  transition:all .18s;
+}
+.nav-btn:hover{ background:var(--paper-deep); }
+.nav-btn.primary{
+  background:var(--ink);
+  color:var(--paper);
+  border-color:var(--ink);
+}
+.nav-btn.primary:hover{ background:var(--indigo); border-color:var(--indigo); }
+.nav-btn:disabled{ opacity:0.35; cursor:default; }
+.icon-btn{
+  border:1px solid var(--line);
+  background:transparent;
+  color:var(--ink-soft);
+  width:40px;height:40px;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .18s;
+}
+.icon-btn:hover{ color:var(--ink); background:var(--paper-deep); }
+.icon-btn svg{width:16px;height:16px;}
+
+.keyhint{
+  text-align:center;
+  font-size:11.5px;
+  color:var(--ink-soft);
+  margin-top:6px;
+}
+
+/* ---------- List view ---------- */
+.search-box{
+  width:100%;
+  padding:11px 14px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Noto Sans JP', sans-serif;
+  font-size:14px;
+  margin-bottom:14px;
+}
+.word-list{
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+.word-row{
+  display:grid;
+  grid-template-columns:34px 1fr 90px;
+  gap:14px;
+  align-items:center;
+  padding:13px 16px;
+  background:var(--paper);
+  border-bottom:1px solid var(--line);
+  cursor:pointer;
+  transition:background .15s;
+}
+.word-row:last-child{ border-bottom:none; }
+.word-row:hover{ background:var(--paper-deep); }
+.word-row .num{
+  font-size:11px; color:var(--ink-soft); text-align:right;
+}
+.word-row .wk{
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:17px;
+}
+.word-row .wr{
+  font-size:12.5px;
+  color:var(--ink-soft);
+  margin-top:2px;
+}
+.word-row .wm{
+  font-size:12px;
+  color:var(--ink-soft);
+  text-align:right;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.word-row.mastered .wk{ color:var(--seal-deep); }
+
+.detail-panel{
+  position:fixed;
+  inset:0;
+  background:rgba(20,18,14,0.5);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:20px;
+}
+.detail-panel.show{ display:flex; }
+.detail-card{
+  background:var(--paper);
+  border-radius:16px;
+  max-width:440px;
+  width:100%;
+  padding:30px;
+  box-shadow:var(--card-shadow);
+  position:relative;
+}
+.detail-close{
+  position:absolute; top:14px; right:14px;
+  border:none; background:transparent; color:var(--ink-soft);
+  cursor:pointer; font-size:20px; line-height:1;
+}
+.detail-kanji{
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:34px;
+}
+.detail-reading{
+  font-weight:700;
+  color:var(--seal-deep);
+  margin:8px 0 16px;
+  font-size:16px;
+}
+.detail-meaning{ font-size:14.5px; line-height:1.8; }
+
+/* ---------- Stats view ---------- */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-bottom:26px;
+}
+.stat-card{
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:18px;
+  text-align:center;
+  background:var(--paper);
+}
+.stat-num{
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:30px;
+  color:var(--seal-deep);
+}
+.stat-label{ font-size:12px; color:var(--ink-soft); margin-top:4px; }
+
+.group-bars{ display:flex; flex-direction:column; gap:10px; }
+.group-bar-row{ display:flex; align-items:center; gap:12px; }
+.group-bar-label{ width:52px; font-size:12.5px; color:var(--ink-soft); flex:none; }
+.group-bar-track{ flex:1; height:9px; border-radius:5px; background:var(--line); overflow:hidden; }
+.group-bar-fill{ height:100%; background:var(--indigo); border-radius:5px; }
+.group-bar-count{ width:56px; text-align:right; font-size:11.5px; color:var(--ink-soft); flex:none; }
+
+.reset-row{ margin-top:26px; text-align:center; }
+.reset-btn{
+  font-size:12.5px;
+  color:var(--seal-deep);
+  background:none;
+  border:1px solid var(--line);
+  padding:8px 16px;
+  border-radius:18px;
+  cursor:pointer;
+}
+.reset-btn:hover{ background:var(--paper-deep); }
+
+footer{
+  text-align:center;
+  color:var(--ink-soft);
+  font-size:12px;
+  margin-top:50px;
+  padding-top:20px;
+  border-top:1px solid var(--line);
+}
+footer a{ color:var(--ink-soft); }
+
+@media (max-width:560px){
+  h1{ font-size:21px; }
+  .kanji-big{ font-size:44px; }
+  .card-outer{ height:320px; }
+  .stats-grid{ grid-template-columns:repeat(3,1fr); gap:8px; }
+  .stat-num{ font-size:22px; }
+  .word-row{ grid-template-columns:28px 1fr 60px; }
+  .word-row .wm{ display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="paper-texture"></div>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="title-block">
+      <div class="seal-mark">漢</div>
+      <div>
+        <h1>漢文重要単語300</h1>
+        <div class="sub">読み方・意味を覚えるフラッシュカード</div>
+      </div>
+    </div>
+    <button id="theme-toggle" title="表示切替">
+      <svg id="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </button>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-view="cards">カード学習</button>
+    <button class="tab-btn" data-view="list">一覧・検索</button>
+    <button class="tab-btn" data-view="stats">学習状況</button>
+  </nav>
+
+  <!-- ===== Flashcard view ===== -->
+  <section id="view-cards" class="view active">
+    <div class="controls-row">
+      <select id="group-select"></select>
+      <div class="progress-line">
+        <span id="progress-text">1 / 300</span>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="card-index" id="card-index-label"></div>
+      <div class="card-outer">
+        <div class="card-inner" id="card-inner">
+          <div class="face front">
+            <span class="group-chip" id="chip-front"></span>
+            <button class="mastered-mark" id="mastered-front" title="覚えた">済</button>
+            <div class="kanji-big" id="kanji-front"></div>
+            <div class="hint-text">タップして読み方・意味を表示</div>
+          </div>
+          <div class="face back">
+            <span class="group-chip" id="chip-back"></span>
+            <button class="mastered-mark" id="mastered-back" title="覚えた">済</button>
+            <div class="kanji-big" id="kanji-back" style="font-size:32px;"></div>
+            <div class="reading-big" id="reading-back"></div>
+            <div class="meaning-text" id="meaning-back"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="icon-btn" id="shuffle-btn" title="シャッフル">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+        </button>
+        <button class="nav-btn" id="prev-btn">← 前</button>
+        <button class="nav-btn primary" id="flip-btn">めくる</button>
+        <button class="nav-btn" id="next-btn">次 →</button>
+      </div>
+      <div class="keyhint">← / → で移動　・　スペースでめくる</div>
+    </div>
+  </section>
+
+  <!-- ===== List view ===== -->
+  <section id="view-list" class="view">
+    <div class="controls-row">
+      <select id="group-select-list"></select>
+    </div>
+    <input type="text" class="search-box" id="search-input" placeholder="漢字・読み方・意味で検索…">
+    <div class="word-list" id="word-list"></div>
+  </section>
+
+  <!-- ===== Stats view ===== -->
+  <section id="view-stats" class="view">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" id="stat-total">300</div><div class="stat-label">総単語数</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-mastered">0</div><div class="stat-label">覚えた語</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-rate">0%</div><div class="stat-label">達成率</div></div>
+    </div>
+    <div class="group-bars" id="group-bars"></div>
+    <div class="reset-row">
+      <button class="reset-btn" id="reset-btn">学習記録をリセット</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>Get in touch: <a href="mailto:okamotoshoei451@gmail.com">okamotoshoei451@gmail.com</a></p>
+  </footer>
+</div>
+
+<!-- ===== Detail modal (list view) ===== -->
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-card">
+    <button class="detail-close" id="detail-close">&times;</button>
+    <div class="detail-kanji" id="detail-kanji"></div>
+    <div class="detail-reading" id="detail-reading"></div>
+    <div class="detail-meaning" id="detail-meaning"></div>
+  </div>
+</div>
+
+<script>
+const WORDS = [{"id": 1, "kanji": "字", "reading": "あざな", "meaning": "元服のときに本名とは別につける呼び名。", "group": 1}, {"id": 2, "kanji": "亜聖", "reading": "あせい", "meaning": "聖人に次ぐ立派な人。聖人孔子に対して、孟子のことをさす。", "group": 1}, {"id": 3, "kanji": "唯唯", "reading": "いい", "meaning": "「はいはい」と、承知することば。人の意に従うさま。", "group": 1}, {"id": 4, "kanji": "幾何", "reading": "いくばく", "meaning": "どれほど。どれくらい。（＝幾許）", "group": 1}, {"id": 5, "kanji": "異日", "reading": "いじつ", "meaning": "ほかの日。別の日。前日。先日。後日。（＝他日・異時）", "group": 1}, {"id": 6, "kanji": "一毫", "reading": "いちごう", "meaning": "毛の一すじ。ごくわずかなこと。（＝秋毫・寸毫・分毫）", "group": 1}, {"id": 7, "kanji": "一日", "reading": "いちじつ", "meaning": "ある日。", "group": 1}, {"id": 8, "kanji": "一", "reading": "いつに（いつも）", "meaning": "「いつに」は「もっぱら」「ひとえに」、「いつなり」と読むと「同じである」の意。", "group": 1}, {"id": 9, "kanji": "夷狄", "reading": "いてき", "meaning": "野蛮人。異民族。（＝胡）", "group": 1}, {"id": 10, "kanji": "諱", "reading": "いみな", "meaning": "死者の生前の本名。死後に生前の徳をたたえて贈られる名は「諡」。", "group": 1}, {"id": 11, "kanji": "所謂", "reading": "いわゆる", "meaning": "世間で言われている。ここで言うところの。", "group": 1}, {"id": 12, "kanji": "印綬", "reading": "いんじゅ", "meaning": "官職名を彫った印と、印についている組みひも。", "group": 1}, {"id": 13, "kanji": "陰徳", "reading": "いんとく", "meaning": "人に知られない善行。", "group": 1}, {"id": 14, "kanji": "宇内", "reading": "うだい", "meaning": "世界。天下。（＝海内）", "group": 1}, {"id": 15, "kanji": "器", "reading": "うつわ", "meaning": "才能。度量。人物。", "group": 1}, {"id": 16, "kanji": "英雄", "reading": "えいゆう", "meaning": "才知・武勇のすぐれた人物。すぐれた才能を持ち、非凡な事業を成しとげる人。", "group": 1}, {"id": 17, "kanji": "易姓革命", "reading": "えきせいかくめい", "meaning": "天命が革（改）まって、王家の姓を易え、王朝が交替すること。（→禅譲・放伐）", "group": 1}, {"id": 18, "kanji": "蛾眉", "reading": "がび", "meaning": "美人。美人の眉。三日月。", "group": 2}, {"id": 19, "kanji": "合従", "reading": "がっしょう", "meaning": "同盟。南北同盟。", "group": 2}, {"id": 20, "kanji": "寡人", "reading": "かじん", "meaning": "諸侯の自称。謙称。「徳の寡い人」の意。（＝孤・不穀）", "group": 2}, {"id": 21, "kanji": "家書", "reading": "かしょ", "meaning": "家（故郷）からの手紙。", "group": 2}, {"id": 22, "kanji": "客心", "reading": "かくしん", "meaning": "旅情。旅先での思い。", "group": 2}, {"id": 23, "kanji": "学者", "reading": "がくしゃ", "meaning": "学問をする人。", "group": 2}, {"id": 24, "kanji": "客舎", "reading": "かくしゃ", "meaning": "旅館。（＝逆旅）", "group": 2}, {"id": 25, "kanji": "客", "reading": "かく", "meaning": "訪問者。旅人。食客。", "group": 2}, {"id": 26, "kanji": "郭", "reading": "かく", "meaning": "町をとり囲む外側の城壁。郊外。むら。", "group": 2}, {"id": 27, "kanji": "科挙", "reading": "かきょ", "meaning": "高級官吏の登用試験制度。（→進士・登第）", "group": 2}, {"id": 28, "kanji": "過客", "reading": "かかく", "meaning": "旅人。（＝遊子）", "group": 2}, {"id": 29, "kanji": "海内", "reading": "かいだい", "meaning": "国内。天下。（＝宇内）", "group": 2}, {"id": 30, "kanji": "河", "reading": "か", "meaning": "黄河。大きな川。「江」は長江（揚子江）。", "group": 2}, {"id": 31, "kanji": "以為", "reading": "おもえらく", "meaning": "思うに。思ったことには。", "group": 2}, {"id": 32, "kanji": "億兆", "reading": "おくちょう", "meaning": "人民。万民。数が多いこと。（＝百姓・烝民）", "group": 2}, {"id": 33, "kanji": "王道", "reading": "おうどう", "meaning": "君主の人徳によって天下を治める政治のあり方。徳地政治。（↔覇道）", "group": 2}, {"id": 34, "kanji": "遠慮", "reading": "えんりょ", "meaning": "遠い将来まで見通す深い考え。", "group": 2}, {"id": 35, "kanji": "煙花", "reading": "えんか", "meaning": "花がすみ。都市のにぎわい。繁華。", "group": 2}, {"id": 36, "kanji": "夷", "reading": "えびす", "meaning": "異民族。（南蛮）という。東方の異民族を夷（東夷）、西方を戎（西戎）、北方を狄（北狄）、南方を蛮という。", "group": 2}, {"id": 37, "kanji": "干戈", "reading": "かんか", "meaning": "武器。戦争。（＝戎馬・兵）", "group": 3}, {"id": 38, "kanji": "宦官", "reading": "かんがん", "meaning": "後宮に仕えた、去勢された男の役人。", "group": 3}, {"id": 39, "kanji": "閑居", "reading": "かんきょ", "meaning": "静かな住まい。世俗を離れて心静かに暮らすこと。ひまにしていること。", "group": 3}, {"id": 40, "kanji": "諫言", "reading": "かんげん", "meaning": "主君などの目上の人に対していさめること。", "group": 3}, {"id": 41, "kanji": "寒山", "reading": "かんざん", "meaning": "秋から冬にかけての、寒々としたものさびしい山。", "group": 3}, {"id": 42, "kanji": "奸臣", "reading": "がんしん", "meaning": "心のねじけた、悪い家臣。（＝姦臣・佞臣）", "group": 3}, {"id": 43, "kanji": "諫臣", "reading": "かんしん", "meaning": "諫言する臣。主君の非を諫める、正しい家臣。", "group": 3}, {"id": 44, "kanji": "雁信", "reading": "かんしん", "meaning": "手紙。訪れ。（＝雁書・雁札・雁帛・書）", "group": 3}, {"id": 45, "kanji": "関中", "reading": "かんちゅう", "meaning": "東の函谷関、西の散関、南の武関、北の蕭関の四つの関所に囲まれた土地。今の陝西省。", "group": 3}, {"id": 46, "kanji": "翰林学士", "reading": "かんりんがくし", "meaning": "詔勅を草することを掌る唐代の官名。", "group": 3}, {"id": 47, "kanji": "閑適", "reading": "かんてき", "meaning": "気分が安らかなこと。", "group": 3}, {"id": 48, "kanji": "奇", "reading": "き", "meaning": "「奇とす」（サ変）は、非凡にすぐれていると認めること。普通でない。めずらしい。", "group": 3}, {"id": 49, "kanji": "鬼", "reading": "き", "meaning": "死者の霊。", "group": 3}, {"id": 50, "kanji": "驥", "reading": "き", "meaning": "一日に千里を走る良馬。俊才のたとえ。（＝千里馬）", "group": 3}, {"id": 51, "kanji": "義", "reading": "ぎ", "meaning": "人間として当然ふみ行うべき正しい道。意味。", "group": 3}, {"id": 52, "kanji": "奇才", "reading": "きさい", "meaning": "すぐれた才知。すぐれた人物。（＝奇材）", "group": 3}, {"id": 53, "kanji": "貴賤", "reading": "きせん", "meaning": "身分が高いことと身分が低いこと。身分の上下。", "group": 3}, {"id": 54, "kanji": "唶然", "reading": "きぜん", "meaning": "ため息をつくさま。嘆くさま。", "group": 3}, {"id": 55, "kanji": "期年", "reading": "きねん", "meaning": "まる一年。", "group": 4}, {"id": 56, "kanji": "急", "reading": "きゅう", "meaning": "せく。速い。にわかだ。険しい。", "group": 4}, {"id": 57, "kanji": "裘", "reading": "きゅう", "meaning": "動物の毛皮で作った衣服。", "group": 4}, {"id": 58, "kanji": "宮刑", "reading": "きゅうけい", "meaning": "生殖器をとる刑罰。（＝腐刑）", "group": 4}, {"id": 59, "kanji": "宮市", "reading": "きゅうし", "meaning": "一般から安く徴発し、宮廷内に設けた市。", "group": 4}, {"id": 60, "kanji": "九族", "reading": "きゅうぞく", "meaning": "高祖・曾祖・祖父・父・自分・子・孫・曾孫・玄孫。", "group": 4}, {"id": 61, "kanji": "九重", "reading": "きゅうちょう", "meaning": "宮中。（＝九天）", "group": 4}, {"id": 62, "kanji": "御", "reading": "ぎょ", "meaning": "「御す」は馬や馬車をあやつること。", "group": 4}, {"id": 63, "kanji": "郷関", "reading": "きょうかん", "meaning": "ふるさと。故郷。", "group": 4}, {"id": 64, "kanji": "堯舜", "reading": "ぎょうしゅん", "meaning": "中国古代の伝説上の聖天子、堯と舜のこと。理想的な王の代名詞。（↔桀紂）", "group": 4}, {"id": 65, "kanji": "郷人", "reading": "きょうじん", "meaning": "故郷の人。俗人。凡人。", "group": 4}, {"id": 66, "kanji": "匈奴", "reading": "きょうど", "meaning": "戦国時代から前漢のころ、中国北方のモンゴル地方を中心に勢力をもっていた遊牧民族。王を「単于」という。", "group": 4}, {"id": 67, "kanji": "郷党", "reading": "きょうとう", "meaning": "村。村里。（＝郷邑・郷閭）", "group": 4}, {"id": 68, "kanji": "郷里", "reading": "きょうり", "meaning": "村里。故郷。", "group": 4}, {"id": 69, "kanji": "玉顔", "reading": "ぎょくがん", "meaning": "玉のように美しい顔。天子の顔の尊称。", "group": 4}, {"id": 70, "kanji": "曲直", "reading": "きょくちょく", "meaning": "まちがっていることと正しいこと。", "group": 4}, {"id": 71, "kanji": "御史", "reading": "ぎょし", "meaning": "官吏の監察、罪悪の糾正を掌る中国古代の官名。", "group": 4}, {"id": 72, "kanji": "虚心", "reading": "きょしん", "meaning": "心にいっさいの邪念や先入観のないこと。", "group": 4}, {"id": 73, "kanji": "去留", "reading": "きょりゅう", "meaning": "去ることと留まること。自然のなりゆき。（＝去住）", "group": 4}, {"id": 74, "kanji": "禽獣", "reading": "きんじゅう", "meaning": "鳥やけもの。", "group": 5}, {"id": 75, "kanji": "欣然", "reading": "きんぜん", "meaning": "喜ぶさま。", "group": 5}, {"id": 76, "kanji": "空山", "reading": "くうざん", "meaning": "人けのない静かな山。", "group": 5}, {"id": 77, "kanji": "君子", "reading": "くんし", "meaning": "人徳のすぐれた立派な人。人の上に立って政治を行う人。", "group": 5}, {"id": 78, "kanji": "卿", "reading": "けい", "meaning": "天子・諸侯の臣で、国政を掌る大臣・家老などの職にある人。", "group": 5}, {"id": 79, "kanji": "傾国", "reading": "けいこく", "meaning": "絶世の美女。（＝傾城）", "group": 5}, {"id": 80, "kanji": "京師", "reading": "けいし", "meaning": "都。", "group": 5}, {"id": 81, "kanji": "逆旅", "reading": "げきりょ", "meaning": "旅館。（＝客舎）", "group": 5}, {"id": 82, "kanji": "逆鱗", "reading": "げきりん", "meaning": "天子の怒り。", "group": 5}, {"id": 83, "kanji": "桀紂", "reading": "けっちゅう", "meaning": "夏の桀王と殷の紂王のこと。暴君の代名詞。（↔堯舜）", "group": 5}, {"id": 84, "kanji": "乾坤", "reading": "けんこん", "meaning": "天地。宇宙。", "group": 5}, {"id": 85, "kanji": "賢人", "reading": "けんじん", "meaning": "聖人についで才知・徳行のすぐれた人。（＝賢者・賢士）", "group": 5}, {"id": 86, "kanji": "胡", "reading": "こ", "meaning": "中国北方、西方の異民族。えびす。", "group": 5}, {"id": 87, "kanji": "孤", "reading": "こ", "meaning": "諸侯の謙称。（＝寡人）", "group": 5}, {"id": 88, "kanji": "賈", "reading": "こ", "meaning": "商い。「買す」は、商売する、売る。（＝鬻ぐ）", "group": 5}, {"id": 89, "kanji": "公", "reading": "こう", "meaning": "天子。主人。長者・同輩などに対する敬称。", "group": 5}, {"id": 90, "kanji": "侯", "reading": "こう", "meaning": "領主。諸侯。高官などに対する敬称。", "group": 5}, {"id": 91, "kanji": "光陰", "reading": "こういん", "meaning": "時間。歳月。月日。", "group": 5}, {"id": 92, "kanji": "江河", "reading": "こうが", "meaning": "長江（揚子江）と黄河。大きな川。", "group": 5}, {"id": 93, "kanji": "後宮", "reading": "こうきゅう", "meaning": "后妃・女官などのすむ建物。", "group": 5}, {"id": 94, "kanji": "公卿", "reading": "こうけい", "meaning": "高位高官の人。", "group": 6}, {"id": 95, "kanji": "江湖", "reading": "こうこ", "meaning": "大きな川と湖。世間。世の中。民間。地方。", "group": 6}, {"id": 96, "kanji": "公主", "reading": "こうしゅ", "meaning": "天子の娘。皇女。", "group": 6}, {"id": 97, "kanji": "恒心", "reading": "こうしん", "meaning": "常にかわらない正しい心。", "group": 6}, {"id": 98, "kanji": "行人", "reading": "こうじん", "meaning": "道を行く人・旅人（＝行子）。出征する兵士。使者。", "group": 6}, {"id": 99, "kanji": "後生", "reading": "こうせい", "meaning": "あとから生まれる人。若者。（↔先生）", "group": 6}, {"id": 100, "kanji": "孝悌", "reading": "こうてい", "meaning": "父母や年長者に従順によく仕えること。", "group": 6}, {"id": 101, "kanji": "叩頭", "reading": "こうとう", "meaning": "頭を地面にすりつけておじぎをする。（＝稽首）", "group": 6}, {"id": 102, "kanji": "毫毛", "reading": "ごうもう", "meaning": "ほんの少し。（＝一毫・秋毫・寸毫・分毫）", "group": 6}, {"id": 103, "kanji": "胡越", "reading": "こえつ", "meaning": "北方の異民族（胡）と南方の異民族（越）。遠くへだたっていることのたとえ。", "group": 6}, {"id": 104, "kanji": "故園", "reading": "こえん", "meaning": "ふるさと。故郷。（＝郷関）", "group": 6}, {"id": 105, "kanji": "五岳", "reading": "ごがく", "meaning": "泰山・華山・恒山・嵩山の、五つの名山。", "group": 6}, {"id": 106, "kanji": "古稀", "reading": "こき", "meaning": "七十歳のこと。杜甫の「人生七十古来稀なり」の詩句による。", "group": 6}, {"id": 107, "kanji": "故旧", "reading": "こきゅう", "meaning": "古い友人。昔なじみ。（＝故人）", "group": 6}, {"id": 108, "kanji": "国士", "reading": "こくし", "meaning": "国家のために命をかけて尽くす人物。天下の名士。", "group": 6}, {"id": 109, "kanji": "古人", "reading": "こじん", "meaning": "昔の人。死んだ人。", "group": 6}, {"id": 110, "kanji": "故人", "reading": "こじん", "meaning": "旧友。昔なじみ。（＝故旧）", "group": 6}, {"id": 111, "kanji": "孤蓬", "reading": "こほう", "meaning": "一本のよもぎ。ただ一つ風にとばされてゆくよもぎ。さすらいの一人旅にたとえる。", "group": 6}, {"id": 112, "kanji": "虎狼", "reading": "ころう", "meaning": "残忍で悪賢いもののたとえ。", "group": 6}, {"id": 113, "kanji": "宰相", "reading": "さいしょう", "meaning": "天子を補佐して政治を行う人。（＝丞相・相国）", "group": 6}, {"id": 114, "kanji": "左遷", "reading": "させん", "meaning": "高い地位から低い地位におとすこと。（＝左降）", "group": 7}, {"id": 115, "kanji": "左右", "reading": "さゆう", "meaning": "側近の臣。侍臣。近臣。", "group": 7}, {"id": 116, "kanji": "左袒", "reading": "さたん", "meaning": "賛成の意をあらわすこと。味方すること。", "group": 7}, {"id": 117, "kanji": "三皇五帝", "reading": "さんこうごてい", "meaning": "中国古代の伝説上の天子。「三皇」は伏羲・神農・女媧、「五帝」は黄帝・顓頊・嚳・堯・舜。", "group": 7}, {"id": 118, "kanji": "子", "reading": "し", "meaning": "あなた。先生。", "group": 7}, {"id": 119, "kanji": "士", "reading": "し", "meaning": "卿・大夫につぐ官吏。学徳のある者。", "group": 7}, {"id": 120, "kanji": "師", "reading": "し", "meaning": "軍隊。都。先生。手本。", "group": 7}, {"id": 121, "kanji": "卮", "reading": "し", "meaning": "さかずき。大杯。", "group": 7}, {"id": 122, "kanji": "弑逆", "reading": "しいぎゃく", "meaning": "臣下が主君を、子が父を殺すこと。動詞は「弑す」。", "group": 7}, {"id": 123, "kanji": "四海", "reading": "しかい", "meaning": "国内。世界。四方の海。", "group": 7}, {"id": 124, "kanji": "刺史", "reading": "しし", "meaning": "州の長官。", "group": 7}, {"id": 125, "kanji": "詩書", "reading": "ししょ", "meaning": "『詩経』と『書経』のこと。", "group": 7}, {"id": 126, "kanji": "四書五経", "reading": "ししょごきょう", "meaning": "儒学の経典。「四書」は論語・孟子・大学・中庸。「五経」は詩経・書経・易経・春秋・礼記。", "group": 7}, {"id": 127, "kanji": "時人", "reading": "じじん", "meaning": "当時の人。その時の人。この人。", "group": 7}, {"id": 128, "kanji": "市井", "reading": "しせい", "meaning": "まち。世の中。", "group": 7}, {"id": 129, "kanji": "詩聖", "reading": "しせい", "meaning": "杜甫のこと。", "group": 7}, {"id": 130, "kanji": "詩仙", "reading": "しせん", "meaning": "李白のこと。", "group": 7}, {"id": 131, "kanji": "四体", "reading": "したい", "meaning": "両手両足（＝四肢）。全身（頭・胸・手・足）。", "group": 7}, {"id": 132, "kanji": "四端", "reading": "したん", "meaning": "仁・義・礼・智の四つの徳の芽になる、惻隠（あわれみ）の心、羞悪（悪を憎み、はじる）の心、辞譲（人にへりくだりゆずる）の心、是非（善悪を判断する）の心をさす。", "group": 8}, {"id": 133, "kanji": "糸竹", "reading": "しちく", "meaning": "音楽のこと。", "group": 8}, {"id": 134, "kanji": "司馬", "reading": "しば", "meaning": "国家の軍政を掌る官。唐代では州の副知事のこと。", "group": 8}, {"id": 135, "kanji": "社稷", "reading": "しゃしょく", "meaning": "国家。朝廷。", "group": 8}, {"id": 136, "kanji": "舎人", "reading": "しゃじん", "meaning": "側近（＝左右）。食客。家来。宿屋の主人。", "group": 8}, {"id": 137, "kanji": "十一", "reading": "じゅういち", "meaning": "十分の一。", "group": 8}, {"id": 138, "kanji": "戎馬", "reading": "じゅうば", "meaning": "戦争。（＝兵・干戈）", "group": 8}, {"id": 139, "kanji": "豎子", "reading": "じゅし", "meaning": "子供。童僕。未熟者。青二才。（＝孺子）", "group": 8}, {"id": 140, "kanji": "須臾", "reading": "しゅゆ", "meaning": "しばらく。少しの間。", "group": 8}, {"id": 141, "kanji": "春秋", "reading": "しゅんじゅう", "meaning": "春と秋。年月。年齢。", "group": 8}, {"id": 142, "kanji": "書", "reading": "しょ", "meaning": "手紙。書物。記録。文字。字体。『書経』のこと。", "group": 8}, {"id": 143, "kanji": "上", "reading": "じょう", "meaning": "陛下。君主の尊称。", "group": 8}, {"id": 144, "kanji": "相", "reading": "しょう", "meaning": "大臣。宰相。", "group": 8}, {"id": 145, "kanji": "妾", "reading": "しょう", "meaning": "（女性が）わたくし。下女。側室。めかけ。", "group": 8}, {"id": 146, "kanji": "城", "reading": "じょう", "meaning": "城壁をめぐらした町全体。町なか。", "group": 8}, {"id": 147, "kanji": "上弦", "reading": "じょうげん", "meaning": "陰暦で七・八日ごろの半円の月。（↔下弦）", "group": 8}, {"id": 148, "kanji": "小子", "reading": "しょうし", "meaning": "おまえたち。（先生が弟子に呼びかけることば）（＝二三子）", "group": 8}, {"id": 149, "kanji": "丞相", "reading": "じょうしょう", "meaning": "天子を補佐して政治を行う人。総理大臣。（＝宰相・相国）", "group": 8}, {"id": 150, "kanji": "小人", "reading": "しょうじん", "meaning": "人格の低い、つまらぬ人間。身分のない卑しい者。", "group": 9}, {"id": 151, "kanji": "少壮", "reading": "しょうそう", "meaning": "三十歳ぐらいまでの、若くて元気のよい時。また、その人。", "group": 9}, {"id": 152, "kanji": "少年", "reading": "しょうねん", "meaning": "若者。年の若い人。", "group": 9}, {"id": 153, "kanji": "丈夫", "reading": "じょうふ", "meaning": "一人前のしっかりした男子。（＝大丈夫）", "group": 9}, {"id": 154, "kanji": "従容", "reading": "しょうよう", "meaning": "ゆったりとしたさま。のんびりとしたさま。", "group": 9}, {"id": 155, "kanji": "処士", "reading": "しょし", "meaning": "官に仕えないで民間にいる人。（＝在野）", "group": 9}, {"id": 156, "kanji": "庶人", "reading": "しょじん", "meaning": "庶民。平民。無位無官の人。（＝布衣）", "group": 9}, {"id": 157, "kanji": "食客", "reading": "しょっかく", "meaning": "客分としてかかえておく家来。いそうろう。（＝門客・門人）", "group": 9}, {"id": 158, "kanji": "臣", "reading": "しん", "meaning": "わたくし（臣下の一人称）。家臣。臣下。", "group": 9}, {"id": 159, "kanji": "信", "reading": "しん", "meaning": "うそがないこと。まこと。正直。", "group": 9}, {"id": 160, "kanji": "仁", "reading": "じん", "meaning": "いつくしむこと。愛。思いやり。儒教の最高の徳目。", "group": 9}, {"id": 161, "kanji": "人間", "reading": "じんかん", "meaning": "世間。世の中。人間の世界。", "group": 9}, {"id": 162, "kanji": "新月", "reading": "しんげつ", "meaning": "出たばかりの月。", "group": 9}, {"id": 163, "kanji": "進士", "reading": "しんし", "meaning": "官吏登用試験（科挙）の科目。その合格者。", "group": 9}, {"id": 164, "kanji": "人事", "reading": "じんじ", "meaning": "人間のすること。人間社会の事がら。", "group": 9}, {"id": 165, "kanji": "水土", "reading": "すいど", "meaning": "風土。自然環境。水陸。土地。", "group": 9}, {"id": 166, "kanji": "寸陰", "reading": "すんいん", "meaning": "わずかな時間。", "group": 9}, {"id": 167, "kanji": "寸毫", "reading": "すんごう", "meaning": "ほんのわずか。（＝一毫・秋毫・分毫）", "group": 9}, {"id": 168, "kanji": "世家", "reading": "せいか", "meaning": "『史記』の中で、諸侯の歴史を記した部分。", "group": 9}, {"id": 169, "kanji": "正鵠", "reading": "せいこく", "meaning": "弓の的の中心。物事の要点。急所。", "group": 9}, {"id": 170, "kanji": "聖人", "reading": "せいじん", "meaning": "知徳のすぐれた最高の人格者。堯・舜や孔子のことをいう。", "group": 10}, {"id": 171, "kanji": "清談", "reading": "せいだん", "meaning": "竹林の七賢などが行なった、世俗を脱した談論。", "group": 10}, {"id": 172, "kanji": "清貧", "reading": "せいひん", "meaning": "潔白な人格、行いの正しさゆえに貧しいこと。", "group": 10}, {"id": 173, "kanji": "清明", "reading": "せいめい", "meaning": "春分のあとにくる季節。清明節。", "group": 10}, {"id": 174, "kanji": "赤心", "reading": "せきしん", "meaning": "まごころ。誠意。（＝丹心）", "group": 10}, {"id": 175, "kanji": "世襲", "reading": "せいしゅう", "meaning": "子孫が代々位などをうけつぐこと。", "group": 10}, {"id": 176, "kanji": "節度使", "reading": "せつどし", "meaning": "唐・宋時代、軍政と行政を掌った地方長官。", "group": 10}, {"id": 177, "kanji": "折柳", "reading": "せつりゅう", "meaning": "旅立つ人を見送ること。", "group": 10}, {"id": 178, "kanji": "禅譲", "reading": "ぜんじょう", "meaning": "天子が、平和裏に位を有徳者に譲ること。（↔放伐）", "group": 10}, {"id": 179, "kanji": "千乗国", "reading": "せんじょうのくに", "meaning": "兵車千台を出せるほどの大諸侯の国。", "group": 10}, {"id": 180, "kanji": "先生", "reading": "せんせい", "meaning": "さきに生まれた人。父兄。教師。学徳にすぐれた人をよぶ敬称。", "group": 10}, {"id": 181, "kanji": "先王", "reading": "せんのう", "meaning": "昔のえらい天子。堯・舜・禹らをさす。", "group": 10}, {"id": 182, "kanji": "千里馬", "reading": "せんりのうま", "meaning": "一日に千里も走るような良馬。俊才のたとえ。（＝驥）（↔駑・駘）", "group": 10}, {"id": 183, "kanji": "造化", "reading": "ぞうか", "meaning": "万物を造り出して育てること。またその万物。宇宙。", "group": 10}, {"id": 184, "kanji": "騒客", "reading": "そうかく", "meaning": "詩人。憂いを抱いた旅人。（＝騒人）", "group": 10}, {"id": 185, "kanji": "壮士", "reading": "そうし", "meaning": "意気さかんな男。壮年の男。", "group": 10}, {"id": 186, "kanji": "宗廟", "reading": "そうびょう", "meaning": "祖先をまつったみたまや。（＝廟堂）", "group": 10}, {"id": 187, "kanji": "霜鬢", "reading": "そうびん", "meaning": "白髪。（＝白頭）", "group": 10}, {"id": 188, "kanji": "粟", "reading": "ぞく", "meaning": "穀物。俸禄。", "group": 10}, {"id": 189, "kanji": "族", "reading": "ぞく", "meaning": "一人の罪を、その父母・妻子にまで及ぼして科する刑罰。動詞は「族す」。", "group": 10}, {"id": 190, "kanji": "惻隠", "reading": "そくいん", "meaning": "あわれみいたましく思うこと。", "group": 11}, {"id": 191, "kanji": "足下", "reading": "そっか", "meaning": "同輩に対する敬称。足もと。", "group": 11}, {"id": 192, "kanji": "卒然", "reading": "そつぜん", "meaning": "にわかなこと。急なこと。", "group": 11}, {"id": 193, "kanji": "某", "reading": "それがし", "meaning": "自分の謙称。なにがし（人・物・時・所などをぼかしていう語）。", "group": 11}, {"id": 194, "kanji": "太史公", "reading": "たいしこう", "meaning": "国の記録を扱う史官の長。とくに『史記』の著者司馬遷をいう。", "group": 11}, {"id": 195, "kanji": "大守", "reading": "たいしゅ", "meaning": "郡の長官。（＝太守）", "group": 11}, {"id": 196, "kanji": "大丈夫", "reading": "だいじょうふ", "meaning": "意志が強く立派な人物。（＝丈夫）", "group": 11}, {"id": 197, "kanji": "大夫", "reading": "たいふ", "meaning": "官位にある者の総称。卿の下、士の上の地位。", "group": 11}, {"id": 198, "kanji": "謫居", "reading": "たくきょ", "meaning": "罪を得て遠方に流されていること。またその住居。", "group": 11}, {"id": 199, "kanji": "他日", "reading": "たじつ", "meaning": "別の日。先日。後日。（＝異日）", "group": 11}, {"id": 200, "kanji": "旦", "reading": "たん", "meaning": "朝。明け方。", "group": 11}, {"id": 201, "kanji": "断腸", "reading": "だんちょう", "meaning": "はらわたがちぎれるほど、つらく悲しいこと。", "group": 11}, {"id": 202, "kanji": "知音", "reading": "ちいん", "meaning": "心の通じあった友人。親友。知人。", "group": 11}, {"id": 203, "kanji": "置酒", "reading": "ちしゅ", "meaning": "酒宴をひらくこと。酒盛り。", "group": 11}, {"id": 204, "kanji": "馳走", "reading": "ちそう", "meaning": "馬に乗って走らせること。", "group": 11}, {"id": 205, "kanji": "誅", "reading": "ちゅう", "meaning": "「誅す」で、とがめる、責める、罰する、殺す、ほろぼす。", "group": 11}, {"id": 206, "kanji": "中原", "reading": "ちゅうげん", "meaning": "古代中国の中心部（黄河流域の大平野）。平原。", "group": 11}, {"id": 207, "kanji": "忠恕", "reading": "ちゅうじょ", "meaning": "まごころと思いやり。", "group": 11}, {"id": 208, "kanji": "中心", "reading": "ちゅうしん", "meaning": "まんなか。心の中。", "group": 11}, {"id": 209, "kanji": "朝", "reading": "ちょう", "meaning": "天子が政事を執る所。まつりごと。「朝す」は、参内する。", "group": 11}, {"id": 210, "kanji": "長久", "reading": "ちょうきゅう", "meaning": "永久。いつまでも続くこと。", "group": 12}, {"id": 211, "kanji": "長者", "reading": "ちょうじゃ", "meaning": "年長者。徳の高い人。権勢のある人。富豪。", "group": 12}, {"id": 212, "kanji": "長幼", "reading": "ちょうよう", "meaning": "大人と子供。年上と年下。", "group": 12}, {"id": 213, "kanji": "重陽", "reading": "ちょうよう", "meaning": "陰暦の九月九日。", "group": 12}, {"id": 214, "kanji": "朕", "reading": "ちん", "meaning": "天子の自称。", "group": 12}, {"id": 215, "kanji": "涕泗", "reading": "ていし", "meaning": "涙と鼻汁。涙のことをいう。", "group": 12}, {"id": 216, "kanji": "丁壮", "reading": "ていそう", "meaning": "元気さかんな男子。一人前の男子。", "group": 12}, {"id": 217, "kanji": "適帰", "reading": "てっき", "meaning": "身を寄せる。身を落ちつける。ある人を頼りにして従う。", "group": 12}, {"id": 218, "kanji": "天子", "reading": "てんし", "meaning": "君主。天命を受けて天下を治める者。（＝皇帝・天王）", "group": 12}, {"id": 219, "kanji": "天帝", "reading": "てんてい", "meaning": "天の神様。", "group": 12}, {"id": 220, "kanji": "天年", "reading": "てんねん", "meaning": "寿命。天寿。", "group": 12}, {"id": 221, "kanji": "天命", "reading": "てんめい", "meaning": "天が人に与えた使命。運命。天寿。", "group": 12}, {"id": 222, "kanji": "駑", "reading": "ど", "meaning": "のろい馬。駄馬（↔千里馬）。才能が劣っていること。謙称。", "group": 12}, {"id": 223, "kanji": "党", "reading": "とう", "meaning": "村里。故郷。仲間。", "group": 12}, {"id": 224, "kanji": "堂", "reading": "どう", "meaning": "表座敷。正殿。", "group": 12}, {"id": 225, "kanji": "桃源", "reading": "とうげん", "meaning": "世俗を離れた別天地。桃源郷。", "group": 12}, {"id": 226, "kanji": "道士", "reading": "どうし", "meaning": "仙人。道教を学んで不老長生の術などを修めた人。（＝方士）", "group": 12}, {"id": 227, "kanji": "刀俎", "reading": "とうそ", "meaning": "庖丁とまないた。危険な場所。", "group": 12}, {"id": 228, "kanji": "登第", "reading": "とうだい", "meaning": "（科挙の）試験に合格すること。", "group": 12}, {"id": 229, "kanji": "当路", "reading": "とうろ", "meaning": "重要な地位にいて権力をもつこと。また、その人。", "group": 12}, {"id": 230, "kanji": "南面", "reading": "なんめん", "meaning": "君主として政治をすること。（↔北面）", "group": 13}, {"id": 231, "kanji": "肉袒", "reading": "にくたん", "meaning": "上着をぬいで肩をあらわすこと。降服・服従・謝罪などの気持ちをあらわす。", "group": 13}, {"id": 232, "kanji": "二三子", "reading": "にさんし", "meaning": "おまえたち。（先生が複数の弟子に呼びかける語）弟子たち。（＝小子）", "group": 13}, {"id": 233, "kanji": "二柄", "reading": "にへい", "meaning": "君主のにぎる刑罰と恩賞の二つの権力。", "group": 13}, {"id": 234, "kanji": "二毛", "reading": "にもう", "meaning": "白毛まじりの頭髪。", "group": 13}, {"id": 235, "kanji": "佞臣", "reading": "ねいしん", "meaning": "心のまがった臣下。君主に気に入られようとこびへつらう臣下。（＝奸臣）", "group": 13}, {"id": 236, "kanji": "排行", "reading": "はいこう", "meaning": "同姓の一族の同じ世代の年齢順を示す数。「元二」など。", "group": 13}, {"id": 237, "kanji": "帛", "reading": "はく", "meaning": "きぬ。白いねりぎぬ。絹織物。", "group": 13}, {"id": 238, "kanji": "白首", "reading": "はくしゅ", "meaning": "白毛あたま。老人。", "group": 13}, {"id": 239, "kanji": "白頭", "reading": "はくとう", "meaning": "白毛あたま。（＝霜鬢）", "group": 13}, {"id": 240, "kanji": "白眉", "reading": "はくび", "meaning": "多くの中で最もすぐれているもの。", "group": 13}, {"id": 241, "kanji": "伯楽", "reading": "はくらく", "meaning": "馬を鑑定する名人。すぐれた指導者、明君のたとえ。", "group": 13}, {"id": 242, "kanji": "覇者", "reading": "はしゃ", "meaning": "諸侯の旗がしら。武力で天下を支配する者。（↔王者）", "group": 13}, {"id": 243, "kanji": "覇道", "reading": "はどう", "meaning": "武力で政権を奪い取るやり方。（↔王道）", "group": 13}, {"id": 244, "kanji": "万乗国", "reading": "ばんじょうのくに", "meaning": "兵車一万台を出せるほどの大国。", "group": 13}, {"id": 245, "kanji": "鄙諺", "reading": "ひげん", "meaning": "世間でいわれていることわざ。", "group": 13}, {"id": 246, "kanji": "鄙", "reading": "ひ", "meaning": "いなか。素朴だ。ひなびている。いやしい。", "group": 13}, {"id": 247, "kanji": "匹夫", "reading": "ひっぷ", "meaning": "一人の男。身分の卑しい男。つまらない男。", "group": 13}, {"id": 248, "kanji": "為人", "reading": "ひととなり", "meaning": "人柄。性格。うまれつき。天性。", "group": 13}, {"id": 249, "kanji": "微服", "reading": "びふく", "meaning": "人目につかないような粗末な服装。めだたない服装。しのびすがた。", "group": 13}, {"id": 250, "kanji": "百姓", "reading": "ひゃくせい", "meaning": "人民・庶民（＝億兆）。多くの役人。", "group": 14}, {"id": 251, "kanji": "廟堂", "reading": "びょうどう", "meaning": "祖先の霊をまつった所。みたまや。（＝宗廟）", "group": 14}, {"id": 252, "kanji": "比翼連理", "reading": "ひよくれんり", "meaning": "「比翼の鳥（羽を重ね並べて飛ぶ鳥）」と「連理の枝（枝がつながった二本の木）」。男女・夫婦の契りの深いたとえ。", "group": 14}, {"id": 253, "kanji": "貧賤", "reading": "ひんせん", "meaning": "貧乏で身分が低いこと。（↔富貴）", "group": 14}, {"id": 254, "kanji": "布衣", "reading": "ふい", "meaning": "平民。無位無官の者。（＝庶人）", "group": 14}, {"id": 255, "kanji": "富貴", "reading": "ふうき", "meaning": "金持ちで身分が高いこと。（↔貧賤）", "group": 14}, {"id": 256, "kanji": "夫子", "reading": "ふうし", "meaning": "先生。あなた。", "group": 14}, {"id": 257, "kanji": "風霜", "reading": "ふうそう", "meaning": "困難・苦難のたとえ。（＝風雪）年月。（＝星霜）", "group": 14}, {"id": 258, "kanji": "不材", "reading": "ふざい", "meaning": "役に立たないこと。無用なこと。", "group": 14}, {"id": 259, "kanji": "不肖", "reading": "ふしょう", "meaning": "おろかなこと。自分の謙称。才能がないこと。（＝不才）", "group": 14}, {"id": 260, "kanji": "浮生", "reading": "ふせい", "meaning": "はかない人生。人生の定まりないさま。", "group": 14}, {"id": 261, "kanji": "憮然", "reading": "ぶぜん", "meaning": "むなしい気持ちになるさま。がっかりするさま。", "group": 14}, {"id": 262, "kanji": "文章", "reading": "ぶんしょう", "meaning": "色どり。模様。礼楽。制度。文。文章。文学。", "group": 14}, {"id": 263, "kanji": "文理", "reading": "ぶんり", "meaning": "物事のすじめ。あや。", "group": 14}, {"id": 264, "kanji": "兵", "reading": "へい", "meaning": "武器。兵士。武力。戦争。（＝干戈）「兵す」は殺すこと。", "group": 14}, {"id": 265, "kanji": "柄", "reading": "へい", "meaning": "権力。「政柄」は政権のこと。", "group": 14}, {"id": 266, "kanji": "病", "reading": "へい", "meaning": "病気。病気が重い。苦しみ。憂い。欠点。", "group": 14}, {"id": 267, "kanji": "璧", "reading": "へき", "meaning": "環状の美しい玉。", "group": 14}, {"id": 268, "kanji": "辺塞", "reading": "へんさい", "meaning": "国境付近に設けられた外敵の侵入を防ぐとりで。国境地帯。", "group": 14}, {"id": 269, "kanji": "妄言", "reading": "ぼうげん", "meaning": "みだりなことば。いつわりのことば。（＝妄語）", "group": 15}, {"id": 270, "kanji": "方士", "reading": "ほうし", "meaning": "方術（仙人が行う神秘的な術）を行う人。（＝道士）", "group": 15}, {"id": 271, "kanji": "放心", "reading": "ほうしん", "meaning": "居どころがわからなくなった心。失われた良心。心をのびのびさせること。", "group": 15}, {"id": 272, "kanji": "方寸", "reading": "ほうすん", "meaning": "極めて狭い範囲。心。胸中。", "group": 15}, {"id": 273, "kanji": "朋党", "reading": "ほうとう", "meaning": "考え方や利害などを同じくする仲間。政治上の派閥。", "group": 15}, {"id": 274, "kanji": "放伐", "reading": "ほうばつ", "meaning": "有徳の者が不徳の君主を討伐して、位につくこと。（↔禅譲）", "group": 15}, {"id": 275, "kanji": "髣髴", "reading": "ほうふつ", "meaning": "ほのかなさま。はっきりと見えないさま。", "group": 15}, {"id": 276, "kanji": "北面", "reading": "ほくめん", "meaning": "臣下として君に仕えること。（↔南面）", "group": 15}, {"id": 277, "kanji": "本紀", "reading": "ほんぎ", "meaning": "『史記』の中で、帝王の歴史を記した部分。", "group": 15}, {"id": 278, "kanji": "道", "reading": "みち", "meaning": "道徳。道理。人としてふみ行うべき正しいあり方。老荘思想で言う「道」は宇宙万物の根源をなす永久不変の絶対的存在。", "group": 15}, {"id": 279, "kanji": "無辜", "reading": "むこ", "meaning": "罪のないこと。無実。（＝不辜）", "group": 15}, {"id": 280, "kanji": "明主", "reading": "めいしゅ", "meaning": "かしこくすぐれた君主。賢明な君主。（＝明君）", "group": 15}, {"id": 281, "kanji": "門人", "reading": "もんじん", "meaning": "食客。弟子。（＝門下）", "group": 15}, {"id": 282, "kanji": "遊子", "reading": "ゆうし", "meaning": "旅人。（＝過客）", "group": 15}, {"id": 283, "kanji": "遊説", "reading": "ゆうぜい", "meaning": "自分の意見や政策を諸侯に説いてまわること。", "group": 15}, {"id": 284, "kanji": "故", "reading": "ゆえ", "meaning": "理由。わけ。", "group": 15}, {"id": 285, "kanji": "所以", "reading": "ゆえん", "meaning": "理由。わけ。方法。手段。…するところのもの。", "group": 15}, {"id": 286, "kanji": "予", "reading": "よ", "meaning": "わたくし（自称）。（＝余）", "group": 15}, {"id": 287, "kanji": "夭折", "reading": "ようせつ", "meaning": "若くして死ぬこと。", "group": 15}, {"id": 288, "kanji": "羊腸", "reading": "ようちょう", "meaning": "山路のけわしいこと。つづら折り。", "group": 16}, {"id": 289, "kanji": "陽報", "reading": "ようほう", "meaning": "はっきりとあらわれるよい報い。", "group": 16}, {"id": 290, "kanji": "吏", "reading": "り", "meaning": "官吏。役人。", "group": 16}, {"id": 291, "kanji": "梨園", "reading": "りえん", "meaning": "演劇界。芝居の世界。唐の玄宗の設けた音楽学校。", "group": 16}, {"id": 292, "kanji": "利器", "reading": "りき", "meaning": "鋭利な刃物。すぐれた人物・才能。", "group": 16}, {"id": 293, "kanji": "六軍", "reading": "りくぐん", "meaning": "天子の軍隊。官軍。", "group": 16}, {"id": 294, "kanji": "六国", "reading": "りっこく", "meaning": "戦国の七雄のうちの秦以外の燕・趙・魏・韓・斉・楚の六つの大国。", "group": 16}, {"id": 295, "kanji": "竜顔", "reading": "りょうがん", "meaning": "天子の顔。", "group": 16}, {"id": 296, "kanji": "礼", "reading": "れい", "meaning": "正しい礼儀・作法。社会秩序の基準。", "group": 16}, {"id": 297, "kanji": "列伝", "reading": "れつでん", "meaning": "『史記』の中で、歴史上特筆すべき人物の伝記を記した部分。", "group": 16}, {"id": 298, "kanji": "廉直", "reading": "れんちょく", "meaning": "心が清く正しいこと。（＝廉節・廉潔）", "group": 16}, {"id": 299, "kanji": "陋巷", "reading": "ろうこう", "meaning": "むさくるしい町。狭くてきたない町。", "group": 16}, {"id": 300, "kanji": "楼台", "reading": "ろうだい", "meaning": "たかどの。二階建以上の建築物をいう。（＝楼閣）", "group": 16}];
+
+/* ---------- Theme ---------- */
+if (localStorage.getItem("pref-theme") === "dark") {
+  document.body.classList.add('dark');
+} else if (localStorage.getItem("pref-theme") === "light") {
+  document.body.classList.remove('dark');
+} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  document.body.classList.add('dark');
+}
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('pref-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+});
+
+/* ---------- Mastered persistence ---------- */
+const STORAGE_KEY = 'kanbun300-mastered';
+function loadMastered(){
+  try{ return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); }
+  catch(e){ return new Set(); }
+}
+function saveMastered(set){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(set)));
+}
+let mastered = loadMastered();
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    if(btn.dataset.view==='list') renderList();
+    if(btn.dataset.view==='stats') renderStats();
+  });
+});
+
+/* ---------- Group setup ---------- */
+const groups = Array.from(new Set(WORDS.map(w=>w.group))).sort((a,b)=>a-b);
+function fillGroupSelect(sel, withAll){
+  sel.innerHTML='';
+  if(withAll){
+    const o=document.createElement('option'); o.value='all'; o.textContent='すべて (全300語)';
+    sel.appendChild(o);
+  }
+  groups.forEach(g=>{
+    const count = WORDS.filter(w=>w.group===g).length;
+    const o=document.createElement('option');
+    o.value=g;
+    o.textContent = `第${g}課 (${count}語)`;
+    sel.appendChild(o);
+  });
+}
+const groupSelect = document.getElementById('group-select');
+const groupSelectList = document.getElementById('group-select-list');
+fillGroupSelect(groupSelect, true);
+fillGroupSelect(groupSelectList, true);
+
+/* ---------- Flashcard state ---------- */
+let deck = WORDS.slice();
+let order = deck.map((_,i)=>i);
+let pos = 0;
+let flipped = false;
+
+function currentSetFromGroup(val){
+  if(val==='all') return WORDS.slice();
+  const g = parseInt(val,10);
+  return WORDS.filter(w=>w.group===g);
+}
+
+function setDeck(newDeck, reshuffleOrder){
+  deck = newDeck;
+  order = deck.map((_,i)=>i);
+  if(reshuffleOrder) shuffleOrder();
+  pos = 0;
+  flipped = false;
+  renderCard();
+}
+
+function shuffleOrder(){
+  for(let i=order.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [order[i],order[j]]=[order[j],order[i]];
+  }
+}
+
+const cardInner = document.getElementById('card-inner');
+const kanjiFront = document.getElementById('kanji-front');
+const kanjiBack = document.getElementById('kanji-back');
+const readingBack = document.getElementById('reading-back');
+const meaningBack = document.getElementById('meaning-back');
+const chipFront = document.getElementById('chip-front');
+const chipBack = document.getElementById('chip-back');
+const masteredFront = document.getElementById('mastered-front');
+const masteredBack = document.getElementById('mastered-back');
+const cardIndexLabel = document.getElementById('card-index-label');
+const progressText = document.getElementById('progress-text');
+const progressFill = document.getElementById('progress-fill');
+
+function renderCard(){
+  if(deck.length===0){
+    kanjiFront.textContent='該当なし';
+    kanjiBack.textContent='';
+    readingBack.textContent='';
+    meaningBack.textContent='この課には単語がありません。';
+    cardIndexLabel.textContent='';
+    return;
+  }
+  const w = deck[order[pos]];
+  kanjiFront.textContent = w.kanji;
+  kanjiBack.textContent = w.kanji;
+  readingBack.textContent = w.reading;
+  meaningBack.textContent = w.meaning;
+  chipFront.textContent = `第${w.group}課`;
+  chipBack.textContent = `第${w.group}課`;
+  cardIndexLabel.textContent = `${pos+1} / ${deck.length}枚`;
+  const isM = mastered.has(w.id);
+  masteredFront.classList.toggle('on', isM);
+  masteredBack.classList.toggle('on', isM);
+  cardInner.classList.remove('flipped');
+  flipped = false;
+
+  progressText.textContent = `${pos+1} / ${deck.length}`;
+  progressFill.style.width = `${((pos+1)/deck.length)*100}%`;
+}
+
+function flipCard(){
+  if(deck.length===0) return;
+  flipped = !flipped;
+  cardInner.classList.toggle('flipped', flipped);
+}
+
+function goNext(){
+  if(deck.length===0) return;
+  pos = (pos+1) % deck.length;
+  renderCard();
+}
+function goPrev(){
+  if(deck.length===0) return;
+  pos = (pos-1+deck.length) % deck.length;
+  renderCard();
+}
+function toggleMastered(){
+  if(deck.length===0) return;
+  const w = deck[order[pos]];
+  if(mastered.has(w.id)) mastered.delete(w.id);
+  else mastered.add(w.id);
+  saveMastered(mastered);
+  const isM = mastered.has(w.id);
+  masteredFront.classList.toggle('on', isM);
+  masteredBack.classList.toggle('on', isM);
+}
+
+cardInner.addEventListener('click', flipCard);
+document.getElementById('flip-btn').addEventListener('click', flipCard);
+document.getElementById('next-btn').addEventListener('click', goNext);
+document.getElementById('prev-btn').addEventListener('click', goPrev);
+document.getElementById('shuffle-btn').addEventListener('click', ()=>{ shuffleOrder(); pos=0; renderCard(); });
+masteredFront.addEventListener('click', (e)=>{ e.stopPropagation(); toggleMastered(); });
+masteredBack.addEventListener('click', (e)=>{ e.stopPropagation(); toggleMastered(); });
+
+groupSelect.addEventListener('change', ()=>{
+  setDeck(currentSetFromGroup(groupSelect.value), false);
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(!document.getElementById('view-cards').classList.contains('active')) return;
+  if(e.key==='ArrowRight') goNext();
+  else if(e.key==='ArrowLeft') goPrev();
+  else if(e.key===' '){ e.preventDefault(); flipCard(); }
+});
+
+/* ---------- List view ---------- */
+const wordListEl = document.getElementById('word-list');
+const searchInput = document.getElementById('search-input');
+
+function renderList(){
+  const q = searchInput.value.trim().toLowerCase();
+  const gVal = groupSelectList.value;
+  let items = gVal==='all' ? WORDS.slice() : WORDS.filter(w=>w.group===parseInt(gVal,10));
+  if(q){
+    items = items.filter(w =>
+      w.kanji.toLowerCase().includes(q) ||
+      w.reading.toLowerCase().includes(q) ||
+      w.meaning.toLowerCase().includes(q)
+    );
+  }
+  wordListEl.innerHTML='';
+  if(items.length===0){
+    wordListEl.innerHTML = '<div class="word-row"><span></span><span style="color:var(--ink-soft)">該当する単語が見つかりません。</span><span></span></div>';
+    return;
+  }
+  items.forEach(w=>{
+    const row = document.createElement('div');
+    row.className = 'word-row' + (mastered.has(w.id) ? ' mastered' : '');
+    row.innerHTML = `
+      <span class="num">${w.id}</span>
+      <span>
+        <div class="wk">${w.kanji}</div>
+        <div class="wr">${w.reading}</div>
+      </span>
+      <span class="wm">${w.meaning}</span>
+    `;
+    row.addEventListener('click', ()=> openDetail(w));
+    wordListEl.appendChild(row);
+  });
+}
+groupSelectList.addEventListener('change', renderList);
+searchInput.addEventListener('input', renderList);
+
+const detailPanel = document.getElementById('detail-panel');
+function openDetail(w){
+  document.getElementById('detail-kanji').textContent = w.kanji;
+  document.getElementById('detail-reading').textContent = w.reading;
+  document.getElementById('detail-meaning').textContent = w.meaning;
+  detailPanel.classList.add('show');
+}
+document.getElementById('detail-close').addEventListener('click', ()=> detailPanel.classList.remove('show'));
+detailPanel.addEventListener('click', (e)=>{ if(e.target===detailPanel) detailPanel.classList.remove('show'); });
+
+/* ---------- Stats view ---------- */
+function renderStats(){
+  const total = WORDS.length;
+  const m = mastered.size;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-mastered').textContent = m;
+  document.getElementById('stat-rate').textContent = total ? Math.round((m/total)*100)+'%' : '0%';
+
+  const barsEl = document.getElementById('group-bars');
+  barsEl.innerHTML='';
+  groups.forEach(g=>{
+    const wordsInG = WORDS.filter(w=>w.group===g);
+    const masteredInG = wordsInG.filter(w=>mastered.has(w.id)).length;
+    const pct = wordsInG.length ? (masteredInG/wordsInG.length)*100 : 0;
+    const row = document.createElement('div');
+    row.className='group-bar-row';
+    row.innerHTML = `
+      <div class="group-bar-label">第${g}課</div>
+      <div class="group-bar-track"><div class="group-bar-fill" style="width:${pct}%"></div></div>
+      <div class="group-bar-count">${masteredInG} / ${wordsInG.length}</div>
+    `;
+    barsEl.appendChild(row);
+  });
+}
+document.getElementById('reset-btn').addEventListener('click', ()=>{
+  if(confirm('学習記録（覚えた単語のマーク）をすべてリセットします。よろしいですか？')){
+    mastered = new Set();
+    saveMastered(mastered);
+    renderCard();
+    renderList();
+    renderStats();
+  }
+});
+
+/* ---------- Init ---------- */
+setDeck(WORDS.slice(), false);
+</script>
+</body>
+</html>
