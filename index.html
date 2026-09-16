@@ -19,6 +19,9 @@
   --gold: #a9863f;
   --line: rgba(38,36,31,0.16);
   --card-shadow: 0 1px 0 rgba(38,36,31,0.06), 0 18px 40px -22px rgba(38,36,31,0.45);
+  --status-known: #3f7d52;
+  --status-vague: #a9863f;
+  --status-weak: #ac3b26;
 }
 
 *{box-sizing:border-box;}
@@ -45,6 +48,9 @@ body.dark{
   --gold:#d8b76a;
   --line: rgba(238,230,211,0.14);
   --card-shadow: 0 1px 0 rgba(0,0,0,0.4), 0 18px 40px -22px rgba(0,0,0,0.7);
+  --status-known: #6bcf8b;
+  --status-vague: #d8b76a;
+  --status-weak: #e0684a;
 }
 
 .paper-texture{
@@ -157,7 +163,7 @@ body.dark #theme-toggle #sun{display:block;}
   margin-bottom:18px;
   flex-wrap:wrap;
 }
-select#group-select, select#group-select-list{
+select#group-select, select#group-select-list, select#scope-select, select#count-select{
   font-family:'Noto Sans JP', sans-serif;
   font-size:13.5px;
   padding:8px 12px;
@@ -184,6 +190,38 @@ select#group-select, select#group-select-list{
   border-radius:4px;
   transition:width .3s;
 }
+
+/* ---------- Session (scope / count) row ---------- */
+.session-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--paper-deep);
+}
+.session-row .session-label{
+  font-size:12px;
+  color:var(--ink-soft);
+  letter-spacing:0.03em;
+}
+.session-start-btn{
+  font-family:'Noto Sans JP', sans-serif;
+  font-size:13px;
+  font-weight:700;
+  padding:8px 18px;
+  border-radius:20px;
+  border:1px solid var(--ink);
+  background:var(--ink);
+  color:var(--paper);
+  cursor:pointer;
+  transition:background .18s;
+  margin-left:auto;
+}
+.session-start-btn:hover{ background:var(--indigo); border-color:var(--indigo); }
 
 /* ---------- Flashcard ---------- */
 .stage{
@@ -237,25 +275,57 @@ select#group-select, select#group-select-list{
   border-radius:12px;
   letter-spacing:0.04em;
 }
-.mastered-mark{
+.status-badge{
   position:absolute;
   top:14px; right:16px;
-  width:34px;height:34px;
-  border-radius:50%;
-  border:2px solid var(--seal);
-  color:var(--seal);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Shippori Mincho', serif;
+  font-size:11px;
   font-weight:700;
-  font-size:13px;
-  cursor:pointer;
+  letter-spacing:0.04em;
+  padding:4px 10px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  color:var(--ink-soft);
   background:transparent;
-  transform:rotate(-6deg);
-  opacity:0.25;
-  transition:opacity .2s, transform .2s;
 }
-.mastered-mark.on{ opacity:1; background:rgba(172,59,38,0.08); }
-.mastered-mark:hover{ transform:rotate(-6deg) scale(1.06); }
+.status-badge.status-known{ color:var(--status-known); border-color:var(--status-known); background:color-mix(in srgb, var(--status-known) 12%, transparent); }
+.status-badge.status-vague{ color:var(--status-vague); border-color:var(--status-vague); background:color-mix(in srgb, var(--status-vague) 12%, transparent); }
+.status-badge.status-weak{ color:var(--status-weak); border-color:var(--status-weak); background:color-mix(in srgb, var(--status-weak) 12%, transparent); }
+
+/* ---------- Status selection row ---------- */
+.status-row{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  opacity:0.35;
+  pointer-events:none;
+  transition:opacity .18s;
+  flex-wrap:wrap;
+}
+.status-row.visible{ opacity:1; pointer-events:auto; }
+.status-btn{
+  font-family:'Noto Sans JP', sans-serif;
+  font-size:13px;
+  font-weight:700;
+  padding:9px 18px;
+  border-radius:20px;
+  border:1.5px solid var(--line);
+  background:transparent;
+  color:var(--ink);
+  cursor:pointer;
+  transition:all .18s;
+}
+.status-btn:hover{ background:var(--paper-deep); }
+.status-btn.weak{ border-color:var(--status-weak); color:var(--status-weak); }
+.status-btn.vague{ border-color:var(--status-vague); color:var(--status-vague); }
+.status-btn.known{ border-color:var(--status-known); color:var(--status-known); }
+.status-btn.weak.active{ background:var(--status-weak); color:#fff; }
+.status-btn.vague.active{ background:var(--status-vague); color:#2a2213; }
+.status-btn.known.active{ background:var(--status-known); color:#fff; }
+.status-hint{
+  text-align:center;
+  font-size:11.5px;
+  color:var(--ink-soft);
+}
 
 .kanji-big{
   font-family:'Shippori Mincho', serif;
@@ -387,7 +457,9 @@ select#group-select, select#group-select-list{
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-.word-row.mastered .wk{ color:var(--seal-deep); }
+.word-row.status-known .wk{ color:var(--status-known); }
+.word-row.status-vague .wk{ color:var(--status-vague); }
+.word-row.status-weak .wk{ color:var(--status-weak); }
 
 .detail-panel{
   position:fixed;
@@ -426,28 +498,33 @@ select#group-select, select#group-select-list{
   font-size:16px;
 }
 .detail-meaning{ font-size:14.5px; line-height:1.8; }
+.detail-status-row{ display:flex; gap:8px; margin-top:18px; flex-wrap:wrap; }
+.detail-status-row .status-btn{ padding:7px 14px; font-size:12px; }
 
 /* ---------- Stats view ---------- */
 .stats-grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
   margin-bottom:26px;
 }
 .stat-card{
   border:1px solid var(--line);
   border-radius:12px;
-  padding:18px;
+  padding:16px 10px;
   text-align:center;
   background:var(--paper);
 }
 .stat-num{
   font-family:'Shippori Mincho', serif;
   font-weight:700;
-  font-size:30px;
+  font-size:26px;
   color:var(--seal-deep);
 }
-.stat-label{ font-size:12px; color:var(--ink-soft); margin-top:4px; }
+.stat-card.known .stat-num{ color:var(--status-known); }
+.stat-card.vague .stat-num{ color:var(--status-vague); }
+.stat-card.weak .stat-num{ color:var(--status-weak); }
+.stat-label{ font-size:11.5px; color:var(--ink-soft); margin-top:4px; }
 
 .group-bars{ display:flex; flex-direction:column; gap:10px; }
 .group-bar-row{ display:flex; align-items:center; gap:12px; }
@@ -483,7 +560,11 @@ footer a{ color:var(--ink-soft); }
   .kanji-big{ font-size:44px; }
   .card-outer{ height:320px; }
   .stats-grid{ grid-template-columns:repeat(3,1fr); gap:8px; }
-  .stat-num{ font-size:22px; }
+  .stat-card{ padding:10px 6px; }
+  .stat-num{ font-size:19px; }
+  .stat-label{ font-size:10.5px; }
+  .session-row{ padding:10px; }
+  .session-start-btn{ margin-left:0; width:100%; }
   .word-row{ grid-template-columns:28px 1fr 60px; }
   .word-row .wm{ display:none; }
 }
@@ -525,25 +606,46 @@ footer a{ color:var(--ink-soft); }
       </div>
     </div>
 
+    <div class="session-row">
+      <span class="session-label">出題対象</span>
+      <select id="scope-select">
+        <option value="all">すべて</option>
+        <option value="weak">苦手のみ</option>
+        <option value="vague">曖昧のみ</option>
+        <option value="weak_vague">苦手＋曖昧</option>
+        <option value="unrated">未評価のみ</option>
+      </select>
+      <span class="session-label">問題数</span>
+      <select id="count-select"></select>
+      <button class="session-start-btn" id="start-session-btn">ランダム出題開始</button>
+    </div>
+
     <div class="stage">
       <div class="card-index" id="card-index-label"></div>
       <div class="card-outer">
         <div class="card-inner" id="card-inner">
           <div class="face front">
             <span class="group-chip" id="chip-front"></span>
-            <button class="mastered-mark" id="mastered-front" title="覚えた">済</button>
+            <span class="status-badge" id="status-front">未</span>
             <div class="kanji-big" id="kanji-front"></div>
             <div class="hint-text">タップして読み方・意味を表示</div>
           </div>
           <div class="face back">
             <span class="group-chip" id="chip-back"></span>
-            <button class="mastered-mark" id="mastered-back" title="覚えた">済</button>
+            <span class="status-badge" id="status-back">未</span>
             <div class="kanji-big" id="kanji-back" style="font-size:32px;"></div>
             <div class="reading-big" id="reading-back"></div>
             <div class="meaning-text" id="meaning-back"></div>
           </div>
         </div>
       </div>
+
+      <div class="status-row" id="status-row">
+        <button class="status-btn weak" id="status-weak-btn">苦手</button>
+        <button class="status-btn vague" id="status-vague-btn">曖昧</button>
+        <button class="status-btn known" id="status-known-btn">覚えた</button>
+      </div>
+      <div class="status-hint" id="status-hint">カードをめくると評価できます</div>
 
       <div class="nav-row">
         <button class="icon-btn" id="shuffle-btn" title="シャッフル">
@@ -553,7 +655,7 @@ footer a{ color:var(--ink-soft); }
         <button class="nav-btn primary" id="flip-btn">めくる</button>
         <button class="nav-btn" id="next-btn">次 →</button>
       </div>
-      <div class="keyhint">← / → で移動　・　スペースでめくる</div>
+      <div class="keyhint">← / → で移動　・　スペースでめくる　・　1/2/3キーで苦手/曖昧/覚えたを記録</div>
     </div>
   </section>
 
@@ -570,7 +672,9 @@ footer a{ color:var(--ink-soft); }
   <section id="view-stats" class="view">
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-num" id="stat-total">300</div><div class="stat-label">総単語数</div></div>
-      <div class="stat-card"><div class="stat-num" id="stat-mastered">0</div><div class="stat-label">覚えた語</div></div>
+      <div class="stat-card known"><div class="stat-num" id="stat-known">0</div><div class="stat-label">覚えた</div></div>
+      <div class="stat-card vague"><div class="stat-num" id="stat-vague">0</div><div class="stat-label">曖昧</div></div>
+      <div class="stat-card weak"><div class="stat-num" id="stat-weak">0</div><div class="stat-label">苦手</div></div>
       <div class="stat-card"><div class="stat-num" id="stat-rate">0%</div><div class="stat-label">達成率</div></div>
     </div>
     <div class="group-bars" id="group-bars"></div>
@@ -591,6 +695,11 @@ footer a{ color:var(--ink-soft); }
     <div class="detail-kanji" id="detail-kanji"></div>
     <div class="detail-reading" id="detail-reading"></div>
     <div class="detail-meaning" id="detail-meaning"></div>
+    <div class="detail-status-row">
+      <button class="status-btn weak" id="detail-status-weak">苦手</button>
+      <button class="status-btn vague" id="detail-status-vague">曖昧</button>
+      <button class="status-btn known" id="detail-status-known">覚えた</button>
+    </div>
   </div>
 </div>
 
@@ -610,16 +719,31 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
   localStorage.setItem('pref-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
 });
 
-/* ---------- Mastered persistence ---------- */
-const STORAGE_KEY = 'kanbun300-mastered';
-function loadMastered(){
-  try{ return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); }
-  catch(e){ return new Set(); }
+/* ---------- Status persistence (覚えた / 曖昧 / 苦手) ---------- */
+const STATUS_KEY = 'kanbun300-status-v2';
+const LEGACY_MASTERED_KEY = 'kanbun300-mastered';
+const STATUS_LABEL = { known:'覚えた', vague:'曖昧', weak:'苦手' };
+
+function loadStatus(){
+  try{
+    const raw = localStorage.getItem(STATUS_KEY);
+    if(raw) return JSON.parse(raw);
+    // 旧バージョン（覚えたのみ記録）からの移行
+    const legacy = JSON.parse(localStorage.getItem(LEGACY_MASTERED_KEY) || '[]');
+    const migrated = {};
+    legacy.forEach(id => { migrated[id] = 'known'; });
+    return migrated;
+  }catch(e){ return {}; }
 }
-function saveMastered(set){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(set)));
+function saveStatus(obj){
+  localStorage.setItem(STATUS_KEY, JSON.stringify(obj));
 }
-let mastered = loadMastered();
+let wordStatus = loadStatus();
+function getStatus(id){ return wordStatus[id] || null; }
+function setWordStatus(id, val){
+  wordStatus[id] = val;
+  saveStatus(wordStatus);
+}
 
 /* ---------- Tabs ---------- */
 document.querySelectorAll('.tab-btn').forEach(btn=>{
@@ -666,6 +790,14 @@ function currentSetFromGroup(val){
   return WORDS.filter(w=>w.group===g);
 }
 
+function filterByScope(words, scope){
+  if(scope==='weak') return words.filter(w=>getStatus(w.id)==='weak');
+  if(scope==='vague') return words.filter(w=>getStatus(w.id)==='vague');
+  if(scope==='weak_vague') return words.filter(w=>{ const s=getStatus(w.id); return s==='weak'||s==='vague'; });
+  if(scope==='unrated') return words.filter(w=>!getStatus(w.id));
+  return words.slice();
+}
+
 function setDeck(newDeck, reshuffleOrder){
   deck = newDeck;
   order = deck.map((_,i)=>i);
@@ -689,19 +821,43 @@ const readingBack = document.getElementById('reading-back');
 const meaningBack = document.getElementById('meaning-back');
 const chipFront = document.getElementById('chip-front');
 const chipBack = document.getElementById('chip-back');
-const masteredFront = document.getElementById('mastered-front');
-const masteredBack = document.getElementById('mastered-back');
+const statusFront = document.getElementById('status-front');
+const statusBack = document.getElementById('status-back');
+const statusRow = document.getElementById('status-row');
+const statusHint = document.getElementById('status-hint');
+const weakBtn = document.getElementById('status-weak-btn');
+const vagueBtn = document.getElementById('status-vague-btn');
+const knownBtn = document.getElementById('status-known-btn');
 const cardIndexLabel = document.getElementById('card-index-label');
 const progressText = document.getElementById('progress-text');
 const progressFill = document.getElementById('progress-fill');
+
+function renderStatusBadges(id){
+  const s = getStatus(id);
+  [statusFront, statusBack].forEach(el=>{
+    el.textContent = s ? STATUS_LABEL[s] : '未';
+    el.className = 'status-badge' + (s ? ' status-'+s : '');
+  });
+  weakBtn.classList.toggle('active', s==='weak');
+  vagueBtn.classList.toggle('active', s==='vague');
+  knownBtn.classList.toggle('active', s==='known');
+}
+
+function updateStatusRowVisibility(){
+  statusRow.classList.toggle('visible', flipped && deck.length>0);
+  statusHint.style.display = (flipped && deck.length>0) ? 'none' : '';
+}
 
 function renderCard(){
   if(deck.length===0){
     kanjiFront.textContent='該当なし';
     kanjiBack.textContent='';
     readingBack.textContent='';
-    meaningBack.textContent='この課には単語がありません。';
+    meaningBack.textContent='この課、または条件に一致する単語がありません。';
     cardIndexLabel.textContent='';
+    cardInner.classList.remove('flipped');
+    flipped = false;
+    updateStatusRowVisibility();
     return;
   }
   const w = deck[order[pos]];
@@ -712,11 +868,10 @@ function renderCard(){
   chipFront.textContent = `第${w.group}課`;
   chipBack.textContent = `第${w.group}課`;
   cardIndexLabel.textContent = `${pos+1} / ${deck.length}枚`;
-  const isM = mastered.has(w.id);
-  masteredFront.classList.toggle('on', isM);
-  masteredBack.classList.toggle('on', isM);
+  renderStatusBadges(w.id);
   cardInner.classList.remove('flipped');
   flipped = false;
+  updateStatusRowVisibility();
 
   progressText.textContent = `${pos+1} / ${deck.length}`;
   progressFill.style.width = `${((pos+1)/deck.length)*100}%`;
@@ -726,6 +881,7 @@ function flipCard(){
   if(deck.length===0) return;
   flipped = !flipped;
   cardInner.classList.toggle('flipped', flipped);
+  updateStatusRowVisibility();
 }
 
 function goNext(){
@@ -738,15 +894,13 @@ function goPrev(){
   pos = (pos-1+deck.length) % deck.length;
   renderCard();
 }
-function toggleMastered(){
-  if(deck.length===0) return;
+function applyStatus(val){
+  if(deck.length===0 || !flipped) return;
   const w = deck[order[pos]];
-  if(mastered.has(w.id)) mastered.delete(w.id);
-  else mastered.add(w.id);
-  saveMastered(mastered);
-  const isM = mastered.has(w.id);
-  masteredFront.classList.toggle('on', isM);
-  masteredBack.classList.toggle('on', isM);
+  setWordStatus(w.id, val);
+  renderStatusBadges(w.id);
+  updateCountOptions();
+  setTimeout(()=>{ goNext(); }, 180);
 }
 
 cardInner.addEventListener('click', flipCard);
@@ -754,11 +908,53 @@ document.getElementById('flip-btn').addEventListener('click', flipCard);
 document.getElementById('next-btn').addEventListener('click', goNext);
 document.getElementById('prev-btn').addEventListener('click', goPrev);
 document.getElementById('shuffle-btn').addEventListener('click', ()=>{ shuffleOrder(); pos=0; renderCard(); });
-masteredFront.addEventListener('click', (e)=>{ e.stopPropagation(); toggleMastered(); });
-masteredBack.addEventListener('click', (e)=>{ e.stopPropagation(); toggleMastered(); });
+weakBtn.addEventListener('click', ()=> applyStatus('weak'));
+vagueBtn.addEventListener('click', ()=> applyStatus('vague'));
+knownBtn.addEventListener('click', ()=> applyStatus('known'));
 
 groupSelect.addEventListener('change', ()=>{
   setDeck(currentSetFromGroup(groupSelect.value), false);
+  updateCountOptions();
+});
+
+/* ---------- Session controls (対象・問題数・ランダム出題) ---------- */
+const scopeSelect = document.getElementById('scope-select');
+const countSelect = document.getElementById('count-select');
+const startSessionBtn = document.getElementById('start-session-btn');
+
+function updateCountOptions(){
+  const pool = filterByScope(currentSetFromGroup(groupSelect.value), scopeSelect.value);
+  const max = pool.length;
+  const prevVal = countSelect.value;
+  countSelect.innerHTML='';
+  [10,20,30,50,100].filter(n=>n<max).forEach(n=>{
+    const o=document.createElement('option'); o.value=n; o.textContent=`${n}問`;
+    countSelect.appendChild(o);
+  });
+  const oAll = document.createElement('option');
+  oAll.value='all';
+  oAll.textContent = max>0 ? `全部 (${max}問)` : '該当なし';
+  countSelect.appendChild(oAll);
+  if(prevVal && Array.from(countSelect.options).some(o=>o.value===prevVal)){
+    countSelect.value = prevVal;
+  }
+}
+scopeSelect.addEventListener('change', updateCountOptions);
+
+startSessionBtn.addEventListener('click', ()=>{
+  const pool = filterByScope(currentSetFromGroup(groupSelect.value), scopeSelect.value);
+  if(pool.length===0){
+    alert('条件に一致する単語がありません。');
+    return;
+  }
+  const session = pool.slice();
+  for(let i=session.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [session[i],session[j]]=[session[j],session[i]];
+  }
+  const countVal = countSelect.value;
+  const finalSet = countVal==='all' ? session : session.slice(0, parseInt(countVal,10));
+  setDeck(finalSet, false);
 });
 
 document.addEventListener('keydown', (e)=>{
@@ -766,6 +962,9 @@ document.addEventListener('keydown', (e)=>{
   if(e.key==='ArrowRight') goNext();
   else if(e.key==='ArrowLeft') goPrev();
   else if(e.key===' '){ e.preventDefault(); flipCard(); }
+  else if(flipped && (e.key==='1')) applyStatus('weak');
+  else if(flipped && (e.key==='2')) applyStatus('vague');
+  else if(flipped && (e.key==='3')) applyStatus('known');
 });
 
 /* ---------- List view ---------- */
@@ -790,7 +989,8 @@ function renderList(){
   }
   items.forEach(w=>{
     const row = document.createElement('div');
-    row.className = 'word-row' + (mastered.has(w.id) ? ' mastered' : '');
+    const s = getStatus(w.id);
+    row.className = 'word-row' + (s ? ' status-'+s : '');
     row.innerHTML = `
       <span class="num">${w.id}</span>
       <span>
@@ -807,51 +1007,78 @@ groupSelectList.addEventListener('change', renderList);
 searchInput.addEventListener('input', renderList);
 
 const detailPanel = document.getElementById('detail-panel');
+function updateDetailStatusButtons(id){
+  const s = getStatus(id);
+  document.getElementById('detail-status-weak').classList.toggle('active', s==='weak');
+  document.getElementById('detail-status-vague').classList.toggle('active', s==='vague');
+  document.getElementById('detail-status-known').classList.toggle('active', s==='known');
+}
 function openDetail(w){
   document.getElementById('detail-kanji').textContent = w.kanji;
   document.getElementById('detail-reading').textContent = w.reading;
   document.getElementById('detail-meaning').textContent = w.meaning;
+  detailPanel.dataset.wordId = w.id;
+  updateDetailStatusButtons(w.id);
   detailPanel.classList.add('show');
 }
 document.getElementById('detail-close').addEventListener('click', ()=> detailPanel.classList.remove('show'));
 detailPanel.addEventListener('click', (e)=>{ if(e.target===detailPanel) detailPanel.classList.remove('show'); });
+['weak','vague','known'].forEach(val=>{
+  document.getElementById('detail-status-'+val).addEventListener('click', ()=>{
+    const id = parseInt(detailPanel.dataset.wordId,10);
+    setWordStatus(id, val);
+    updateDetailStatusButtons(id);
+    renderList();
+    updateCountOptions();
+  });
+});
 
 /* ---------- Stats view ---------- */
 function renderStats(){
   const total = WORDS.length;
-  const m = mastered.size;
+  let known=0, vague=0, weak=0;
+  WORDS.forEach(w=>{
+    const s = getStatus(w.id);
+    if(s==='known') known++;
+    else if(s==='vague') vague++;
+    else if(s==='weak') weak++;
+  });
   document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-mastered').textContent = m;
-  document.getElementById('stat-rate').textContent = total ? Math.round((m/total)*100)+'%' : '0%';
+  document.getElementById('stat-known').textContent = known;
+  document.getElementById('stat-vague').textContent = vague;
+  document.getElementById('stat-weak').textContent = weak;
+  document.getElementById('stat-rate').textContent = total ? Math.round((known/total)*100)+'%' : '0%';
 
   const barsEl = document.getElementById('group-bars');
   barsEl.innerHTML='';
   groups.forEach(g=>{
     const wordsInG = WORDS.filter(w=>w.group===g);
-    const masteredInG = wordsInG.filter(w=>mastered.has(w.id)).length;
-    const pct = wordsInG.length ? (masteredInG/wordsInG.length)*100 : 0;
+    const knownInG = wordsInG.filter(w=>getStatus(w.id)==='known').length;
+    const pct = wordsInG.length ? (knownInG/wordsInG.length)*100 : 0;
     const row = document.createElement('div');
     row.className='group-bar-row';
     row.innerHTML = `
       <div class="group-bar-label">第${g}課</div>
       <div class="group-bar-track"><div class="group-bar-fill" style="width:${pct}%"></div></div>
-      <div class="group-bar-count">${masteredInG} / ${wordsInG.length}</div>
+      <div class="group-bar-count">${knownInG} / ${wordsInG.length}</div>
     `;
     barsEl.appendChild(row);
   });
 }
 document.getElementById('reset-btn').addEventListener('click', ()=>{
-  if(confirm('学習記録（覚えた単語のマーク）をすべてリセットします。よろしいですか？')){
-    mastered = new Set();
-    saveMastered(mastered);
+  if(confirm('学習記録（覚えた・曖昧・苦手のマーク）をすべてリセットします。よろしいですか？')){
+    wordStatus = {};
+    saveStatus(wordStatus);
     renderCard();
     renderList();
     renderStats();
+    updateCountOptions();
   }
 });
 
 /* ---------- Init ---------- */
 setDeck(WORDS.slice(), false);
+updateCountOptions();
 </script>
 </body>
 </html>
