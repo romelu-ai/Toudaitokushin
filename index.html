@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>東大特進 | 学習ツール一覧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper: #f1ecdd;
+  --paper-deep: #e8e0cc;
+  --ink: #26241f;
+  --ink-soft: #514c40;
+  --seal: #ac3b26;
+  --indigo: #33465a;
+  --gold: #a9863f;
+  --line: rgba(38,36,31,0.16);
+
+  --sky-a: #bcd9ea;
+  --sky-b: #f1ecdd;
+  --bldg-main: #8a5a3d;
+  --bldg-dark: #5c3a26;
+  --tree-a: #6c8a5a;
+  --tree-b: #46603c;
+  --gate-roof: #4a4f57;
+}
+body.dark{
+  --paper:#1b1a17;
+  --paper-deep:#242220;
+  --ink:#eee6d3;
+  --ink-soft:#c9bfa8;
+  --seal:#e0684a;
+  --indigo:#9fb3c8;
+  --gold:#d8b76a;
+  --line: rgba(238,230,211,0.14);
+
+  --sky-a: #202b36;
+  --sky-b: #1b1a17;
+  --bldg-main: #6b4a35;
+  --bldg-dark: #3a2418;
+  --tree-a: #2f4029;
+  --tree-b: #1d2a19;
+  --gate-roof: #34383e;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background: var(--paper);
+  color:var(--ink);
+  font-family:'Noto Sans JP', sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.paper-texture{
+  position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0.5;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(38,36,31,0.015) 0px, rgba(38,36,31,0.015) 1px, transparent 1px, transparent 3px);
+}
+body.dark .paper-texture{
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+}
+
+.wrap{
+  position:relative; z-index:1;
+  max-width:760px;
+  margin:0 auto;
+  padding:0 22px 70px;
+}
+
+/* ---------- Hero ---------- */
+.hero{
+  position:relative;
+  min-height:360px;
+  padding:34px 0 26px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+}
+.hero-scene{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  user-select:none;
+}
+.hero-scene svg{ width:100%; height:100%; display:block; }
+
+.hero-top{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+.eyebrow-tick{
+  width:26px; height:1px;
+  background:var(--ink);
+  margin-bottom:14px;
+}
+.eyebrow-en{
+  font-family:'Zen Kaku Gothic New', sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.22em;
+  color:var(--ink);
+  line-height:1.7;
+}
+h1{
+  position:relative;
+  z-index:1;
+  font-family:'Yuji Syuku', serif;
+  font-weight:400;
+  font-size:clamp(46px, 16vw, 68px);
+  line-height:0.92;
+  margin:6px 0 2px;
+  letter-spacing:0.02em;
+  color:var(--ink);
+  text-shadow: 0 2px 20px var(--paper), 0 0 3px var(--paper), 0 0 1px var(--paper);
+}
+.brush-underline{
+  position:relative; z-index:1;
+  width:150px; height:14px;
+  margin:2px 0 16px;
+  display:block;
+}
+.brush-underline path{ fill:var(--ink); }
+
+.hero .sub{
+  position:relative;
+  z-index:1;
+  font-size:13.5px;
+  color:var(--ink-soft);
+  line-height:1.85;
+  max-width:420px;
+  margin:0;
+  text-shadow: 0 0 14px var(--paper);
+}
+
+#theme-toggle{
+  flex:none;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  width:38px;height:38px;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  position:relative; z-index:1;
+}
+#theme-toggle svg{width:16px;height:16px;}
+#theme-toggle #sun{display:none;}
+body.dark #theme-toggle #moon{display:none;}
+body.dark #theme-toggle #sun{display:block;}
+
+/* ---------- Divider ---------- */
+.divider-row{
+  position:relative;
+  height:1px;
+  background:var(--ink);
+  margin:4px 0 0;
+  z-index:1;
+}
+.divider-row::after{
+  content:"";
+  position:absolute;
+  left:50%; top:50%;
+  width:7px; height:7px;
+  background:var(--ink);
+  transform:translate(-50%,-50%) rotate(45deg);
+}
+
+/* ---------- TOC ---------- */
+.toc{ margin-top:0; }
+.toc-item{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  padding:26px 2px;
+  border-bottom:1px solid var(--line);
+  text-decoration:none;
+  color:inherit;
+  position:relative;
+  isolation:isolate;
+}
+.toc-item::before{
+  content:"";
+  position:absolute;
+  inset:0 -2px;
+  background:var(--tint);
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .3s cubic-bezier(.3,.8,.3,1);
+  z-index:-1;
+}
+.toc-item:active::before{ transform:scaleX(1); }
+
+.toc-num{
+  font-family:'Zen Kaku Gothic New', sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.05em;
+  color:var(--ink-soft);
+  width:20px;
+  flex-shrink:0;
+}
+.toc-num::after{
+  content:"";
+  display:block;
+  width:16px; height:1px;
+  background:var(--ink-soft);
+  margin-top:7px;
+}
+.toc-glyph{
+  flex-shrink:0;
+  width:50px;
+  text-align:center;
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:32px;
+  color:var(--accent);
+}
+.toc-body{ flex:1; min-width:0; }
+.toc-category{
+  font-size:11px;
+  letter-spacing:0.1em;
+  color:var(--accent);
+  font-weight:700;
+  margin-bottom:5px;
+}
+.toc-title{
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:19px;
+  margin:0 0 6px;
+  letter-spacing:0.01em;
+}
+.toc-blurb{
+  font-size:12.5px;
+  color:var(--ink-soft);
+  line-height:1.7;
+  margin:0;
+}
+.toc-arrow{
+  flex-shrink:0;
+  width:32px; height:32px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  transition: background .18s, border-color .18s, transform .18s;
+}
+.toc-arrow svg{ width:13px; height:13px; }
+.toc-item:active .toc-arrow{
+  background:var(--ink);
+  border-color:var(--ink);
+  color:var(--paper);
+  transform:translateX(3px);
+}
+
+footer.site-footer{
+  margin-top:26px;
+  font-size:11px;
+  color:var(--ink-soft);
+  letter-spacing:0.05em;
+  text-align:right;
+}
+
+/* ---------- Gate band ---------- */
+.gate-band{
+  position:relative;
+  height:220px;
+  margin:18px -22px -70px;
+  overflow:hidden;
+}
+.gate-band svg{ width:100%; height:100%; display:block; }
+</style>
+</head>
+<body>
+
+<div class="paper-texture"></div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-scene">
+      <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="var(--sky-a)"/>
+            <stop offset="1" stop-color="var(--sky-b)"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="800" height="400" fill="url(#skyGrad)"/>
+        <g fill="var(--tree-b)">
+          <ellipse cx="50" cy="410" rx="150" ry="95"/>
+          <ellipse cx="770" cy="415" rx="130" ry="90"/>
+        </g>
+        <g fill="var(--tree-a)">
+          <ellipse cx="80" cy="390" rx="115" ry="72"/>
+          <ellipse cx="730" cy="395" rx="95" ry="65"/>
+        </g>
+        <g>
+          <rect x="522" y="172" width="188" height="228" fill="var(--bldg-main)"/>
+          <rect x="550" y="112" width="132" height="62" fill="var(--bldg-main)"/>
+          <path d="M560,112 L616,80 L672,112 Z" fill="var(--bldg-main)"/>
+          <g fill="var(--bldg-dark)">
+            <rect x="540" y="200" width="10" height="150"/>
+            <rect x="568" y="200" width="10" height="150"/>
+            <rect x="596" y="200" width="10" height="150"/>
+            <rect x="654" y="200" width="10" height="150"/>
+            <rect x="682" y="200" width="10" height="150"/>
+          </g>
+          <circle cx="616" cy="142" r="19" fill="var(--sky-b)" stroke="var(--bldg-dark)" stroke-width="3"/>
+          <line x1="616" y1="142" x2="616" y2="130" stroke="var(--bldg-dark)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="616" y1="142" x2="626" y2="142" stroke="var(--bldg-dark)" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow-tick"></div>
+        <div class="eyebrow-en">TODAI TOKUSHIN<br>STUDY INDEX</div>
+      </div>
+      <button id="theme-toggle" title="表示切替">
+        <svg id="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+    </div>
+
+    <h1>東大特進</h1>
+    <svg class="brush-underline" viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2,15 C40,7 90,17 138,9 C158,6 178,11 196,5 L197,11 C172,17 150,11 130,15 C90,21 40,12 3,19 Z"/>
+    </svg>
+
+    <p class="sub">科目ごとの学習ツールをここから開けます。取り込んだデータや進捗は各ツールの中に保存されます。</p>
+  </div>
+
+  <div class="divider-row"></div>
+
+  <nav class="toc" id="toc"></nav>
+
+  <footer class="site-footer">個人学習用</footer>
+
+  <div class="gate-band">
+    <svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <g fill="var(--tree-b)">
+        <ellipse cx="70" cy="235" rx="140" ry="80"/>
+        <ellipse cx="740" cy="240" rx="140" ry="80"/>
+      </g>
+      <g fill="var(--tree-a)">
+        <ellipse cx="110" cy="225" rx="100" ry="60"/>
+        <ellipse cx="700" cy="228" rx="100" ry="60"/>
+      </g>
+      <rect x="0" y="205" width="800" height="15" fill="var(--tree-b)" opacity="0.5"/>
+      <g>
+        <path d="M110,118 Q400,68 690,118 L690,138 Q400,92 110,138 Z" fill="var(--gate-roof)"/>
+        <path d="M150,146 Q400,110 650,146 L650,160 Q400,128 150,160 Z" fill="var(--gate-roof)" opacity="0.9"/>
+        <rect x="146" y="118" width="26" height="105" fill="var(--seal)"/>
+        <rect x="628" y="118" width="26" height="105" fill="var(--seal)"/>
+        <rect x="146" y="214" width="508" height="9" fill="var(--seal)" opacity="0.85"/>
+        <rect x="362" y="122" width="76" height="26" rx="2" fill="var(--paper)" stroke="var(--gate-roof)" stroke-width="2"/>
+      </g>
+    </svg>
+  </div>
+
+</div>
+
+<script>
+const TOOLS = [
+  {
+    href: "kanbun/",
+    category: "国語 · 漢文",
+    glyph: "漢",
+    accent: "var(--seal)",
+    tint: "rgba(172,59,38,0.06)",
+    title: "漢文重要単語300",
+    blurb: "句形・重要語300語をフラッシュカードで反復。読み方と意味を一気に固める。"
+  },
+  {
+    href: "listening/",
+    category: "英語 · リスニング",
+    glyph: "聴",
+    accent: "var(--indigo)",
+    tint: "rgba(51,70,90,0.06)",
+    title: "リスニング・ライブラリ",
+    blurb: "教材音声をまとめて取り込み、10秒巻き戻し・通し再生でリスニング練習。"
+  }
+];
+
+const toc = document.getElementById("toc");
+TOOLS.forEach((t, i) => {
+  const a = document.createElement("a");
+  a.href = t.href;
+  a.className = "toc-item";
+  a.style.setProperty("--accent", t.accent);
+  a.style.setProperty("--tint", t.tint);
+  a.innerHTML = `
+    <div class="toc-num">${String(i + 1).padStart(2, "0")}</div>
+    <div class="toc-glyph">${t.glyph}</div>
+    <div class="toc-body">
+      <div class="toc-category">${t.category}</div>
+      <h3 class="toc-title">${t.title}</h3>
+      <p class="toc-blurb">${t.blurb}</p>
+    </div>
+    <div class="toc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+  `;
+  toc.appendChild(a);
+});
+
+/* ---------- Theme ---------- */
+if (localStorage.getItem("pref-theme") === "dark") {
+  document.body.classList.add('dark');
+} else if (localStorage.getItem("pref-theme") === "light") {
+  document.body.classList.remove('dark');
+} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  document.body.classList.add('dark');
+}
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('pref-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+});
+</script>
+
+</body>
+</html>
