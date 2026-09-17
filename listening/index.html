@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>リスニング・ライブラリ | 東大特進</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f1ecdd;
+    --bg-elevated: #e8e0cc;
+    --ink: #26241f;
+    --ink-soft: #514c40;
+    --line: rgba(38,36,31,0.16);
+    --teal: #33465a;
+    --teal-soft: #dde3e8;
+    --amber: #a9863f;
+    --amber-strong: #8f6b2c;
+    --danger: #ac3b26;
+  }
+  body.dark {
+    --bg: #1b1a17;
+    --bg-elevated: #242220;
+    --ink: #eee6d3;
+    --ink-soft: #c9bfa8;
+    --line: rgba(238,230,211,0.14);
+    --teal: #9fb3c8;
+    --teal-soft: #22303c;
+    --amber: #d8b76a;
+    --amber-strong: #f0cf8c;
+    --danger: #e0684a;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    min-height: 100vh;
+    padding-bottom: 132px;
+  }
+  .mono {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  header {
+    padding: 28px 20px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    letter-spacing: 0.03em;
+  }
+  header .top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 10px;
+  }
+  .title-block { display: flex; align-items: center; gap: 14px; }
+  .seal-mark {
+    flex: none;
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    background: var(--teal);
+    color: #f6ede0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 19px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+    transform: rotate(3deg);
+  }
+  h1 {
+    font-family: 'Shippori Mincho', serif;
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  header .sub {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 3px;
+    letter-spacing: 0.03em;
+  }
+  #theme-toggle {
+    flex: none;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #theme-toggle svg { width: 16px; height: 16px; }
+  #theme-toggle #sun { display: none; }
+  body.dark #theme-toggle #moon { display: none; }
+  body.dark #theme-toggle #sun { display: block; }
+  header p.intro {
+    margin: 14px 0 0;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    line-height: 1.75;
+  }
+
+  main {
+    padding: 20px 20px 40px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  #import-zone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 18px;
+    border: 1.5px dashed var(--teal);
+    border-radius: 14px;
+    background: var(--teal-soft);
+    color: var(--teal);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  #import-zone:active { opacity: 0.75; }
+  #file-input { display: none; }
+
+  #all-through-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding: 4px 2px;
+  }
+  #all-through-bar .count {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  #play-all-btn {
+    border: none;
+    background: none;
+    color: var(--teal);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 6px 4px;
+    cursor: pointer;
+  }
+
+  #empty-state {
+    text-align: center;
+    padding: 56px 20px;
+    color: var(--ink-soft);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  #empty-state .glyph {
+    font-size: 30px;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  #track-list {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+  }
+  .track {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+  .track.active .track-name { color: var(--amber-strong); font-weight: 700; }
+  .track-index {
+    width: 22px;
+    flex-shrink: 0;
+    text-align: right;
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+  .track-body { flex: 1; min-width: 0; }
+  .track-name {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .track-duration {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .track-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .track-reorder {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .icon-btn {
+    border: none;
+    background: none;
+    color: var(--ink-soft);
+    padding: 5px;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  .icon-btn:active { background: var(--line); }
+  .icon-btn.danger { color: var(--danger); font-size: 16px; padding: 5px 6px; }
+  .icon-btn:disabled { opacity: 0.25; }
+
+  .play-btn-lg {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--teal-soft);
+    color: var(--teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .play-btn-lg:active { background: var(--teal); color: var(--bg-elevated); }
+  .play-btn-lg svg { width: 22px; height: 22px; margin-left: 2px; }
+
+  #player-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--line);
+    padding: 10px 18px calc(14px + env(safe-area-inset-bottom));
+    transform: translateY(110%);
+    transition: transform 0.25s ease;
+  }
+  #player-bar.visible { transform: translateY(0); }
+
+  #now-playing {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+  }
+
+  #seek-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  #seek-row span { font-size: 11px; color: var(--ink-soft); width: 38px; text-align: center; }
+  #seek {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--line);
+    outline: none;
+  }
+  #seek::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+
+  #controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  #transport {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+  #transport button {
+    border: none;
+    background: none;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 4px;
+  }
+  #back10 svg, #fwd10 svg { width: 27px; height: 27px; color: var(--ink-soft); }
+  #play-pause {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: var(--amber);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #play-pause svg { width: 20px; height: 20px; color: #1B1200; }
+
+  #speed-select {
+    display: flex;
+    gap: 4px;
+    background: var(--teal-soft);
+    border-radius: 20px;
+    padding: 3px;
+  }
+  #speed-select button {
+    border: none;
+    background: none;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 9px;
+    border-radius: 16px;
+    color: var(--teal);
+    cursor: pointer;
+  }
+  #speed-select button.active {
+    background: var(--teal);
+    color: var(--bg-elevated);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../" class="back-link">← メニュー</a>
+  <div class="top">
+    <div class="title-block">
+      <div class="seal-mark">聴</div>
+      <div>
+        <h1>リスニング・ライブラリ</h1>
+        <div class="sub">音声を取り込んで、通しで聞き込む</div>
+      </div>
+    </div>
+    <button id="theme-toggle" title="表示切替">
+      <svg id="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </button>
+  </div>
+  <p class="intro">ファイルアプリから音声を取り込んで、通しで再生できます。取り込んだ音源はこの端末に保存され、次に開いたときも残っています。</p>
+</header>
+
+<main>
+  <button id="import-zone">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0-12 5 5m-5-5-5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+    音声ファイルを追加
+  </button>
+  <input id="file-input" type="file" multiple>
+  <p id="import-warning" style="display:none; margin: 10px 2px 0; font-size: 13px; color: var(--danger); line-height: 1.6;"></p>
+
+  <div id="all-through-bar">
+    <span class="count mono" id="track-count">0 tracks</span>
+    <button id="play-all-btn">先頭から通して再生 ▸</button>
+  </div>
+
+  <div id="empty-state">
+    <span class="glyph">🎧</span>
+    まだ音源がありません。<br>上のボタンからファイルアプリの音声を選んでください。
+  </div>
+
+  <ul id="track-list"></ul>
+</main>
+
+<div id="player-bar">
+  <div id="now-playing">—</div>
+  <div id="seek-row">
+    <span id="time-current" class="mono">0:00</span>
+    <input id="seek" type="range" min="0" max="1000" value="0">
+    <span id="time-duration" class="mono">0:00</span>
+  </div>
+  <div id="controls-row">
+    <div id="transport">
+      <button id="back10" title="10秒戻る" aria-label="10秒戻る">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      </button>
+      <button id="play-pause" aria-label="再生・一時停止">
+        <svg id="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4.5v15l13-7.5z"/></svg>
+        <svg id="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+      </button>
+      <button id="fwd10" title="10秒送る" aria-label="10秒送る">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+      </button>
+    </div>
+    <div id="speed-select">
+      <button data-speed="0.75">0.75x</button>
+      <button data-speed="1" class="active">1x</button>
+      <button data-speed="1.25">1.25x</button>
+      <button data-speed="1.5">1.5x</button>
+    </div>
+  </div>
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- IndexedDB ----------
+  var DB_NAME = "ListeningLibraryDB";
+  var STORE = "tracks";
+  var db = null;
+
+  function openDB() {
+    return new Promise(function (resolve, reject) {
+      var req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = function (e) {
+        var d = e.target.result;
+        if (!d.objectStoreNames.contains(STORE)) {
+          var s = d.createObjectStore(STORE, { keyPath: "id", autoIncrement: true });
+          s.createIndex("order", "order", { unique: false });
+        }
+      };
+      req.onsuccess = function (e) { resolve(e.target.result); };
+      req.onerror = function (e) { reject(e); };
+    });
+  }
+
+  function txStore(mode) {
+    return db.transaction(STORE, mode).objectStore(STORE);
+  }
+
+  function getAllTracks() {
+    return new Promise(function (resolve, reject) {
+      var req = txStore("readonly").getAll();
+      req.onsuccess = function () {
+        var list = req.result.slice().sort(function (a, b) { return a.order - b.order; });
+        resolve(list);
+      };
+      req.onerror = reject;
+    });
+  }
+
+  function addTrack(record) {
+    return new Promise(function (resolve, reject) {
+      var req = txStore("readwrite").add(record);
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = reject;
+    });
+  }
+
+  function putTrack(record) {
+    return new Promise(function (resolve, reject) {
+      var req = txStore("readwrite").put(record);
+      req.onsuccess = function () { resolve(); };
+      req.onerror = reject;
+    });
+  }
+
+  function deleteTrack(id) {
+    return new Promise(function (resolve, reject) {
+      var req = txStore("readwrite").delete(id);
+      req.onsuccess = function () { resolve(); };
+      req.onerror = reject;
+    });
+  }
+
+  // ---------- State ----------
+  var tracks = [];          // sorted by order
+  var currentQueue = [];    // ids, playback order for the active session
+  var currentQueuePos = -1;
+  var currentObjectURL = null;
+  var pendingDeleteId = null;
+
+  var audio = document.getElementById("audio");
+  var listEl = document.getElementById("track-list");
+  var emptyEl = document.getElementById("empty-state");
+  var allThroughBar = document.getElementById("all-through-bar");
+  var trackCountEl = document.getElementById("track-count");
+  var playerBar = document.getElementById("player-bar");
+  var nowPlayingEl = document.getElementById("now-playing");
+  var seekEl = document.getElementById("seek");
+  var timeCurrentEl = document.getElementById("time-current");
+  var timeDurationEl = document.getElementById("time-duration");
+  var playPauseBtn = document.getElementById("play-pause");
+  var iconPlay = document.getElementById("icon-play");
+  var iconPause = document.getElementById("icon-pause");
+
+  function fmtTime(sec) {
+    if (!isFinite(sec) || sec < 0) sec = 0;
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  // ---------- Rendering ----------
+  function render() {
+    listEl.innerHTML = "";
+    if (tracks.length === 0) {
+      emptyEl.style.display = "block";
+      allThroughBar.style.display = "none";
+      return;
+    }
+    emptyEl.style.display = "none";
+    allThroughBar.style.display = "flex";
+    trackCountEl.textContent = tracks.length + " tracks";
+
+    tracks.forEach(function (t, i) {
+      var li = document.createElement("li");
+      li.className = "track" + (t.id === activeTrackId() ? " active" : "");
+
+      var idx = document.createElement("div");
+      idx.className = "track-index mono";
+      idx.textContent = i + 1;
+
+      var body = document.createElement("div");
+      body.className = "track-body";
+      var nameEl = document.createElement("div");
+      nameEl.className = "track-name";
+      nameEl.textContent = t.name;
+      var durEl = document.createElement("div");
+      durEl.className = "track-duration mono";
+      durEl.textContent = t.duration ? fmtTime(t.duration) : "--:--";
+      body.appendChild(nameEl);
+      body.appendChild(durEl);
+
+      var actions = document.createElement("div");
+      actions.className = "track-actions";
+
+      var reorder = document.createElement("div");
+      reorder.className = "track-reorder";
+      var upBtn = iconButton("⌃", function () { moveTrack(i, -1); }, i === 0);
+      var downBtn = iconButton("⌄", function () { moveTrack(i, 1); }, i === tracks.length - 1);
+      reorder.appendChild(upBtn);
+      reorder.appendChild(downBtn);
+
+      var playBtn = document.createElement("button");
+      playBtn.className = "play-btn-lg";
+      playBtn.setAttribute("aria-label", "再生");
+      playBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4.5v15l13-7.5z"/></svg>';
+      playBtn.addEventListener("click", function () { playFrom(i); });
+
+      var delBtn = iconButton(t.id === pendingDeleteId ? "確認" : "✕", function () { handleDelete(t.id); }, false, "danger");
+
+      actions.appendChild(reorder);
+      actions.appendChild(playBtn);
+      actions.appendChild(delBtn);
+
+      li.appendChild(idx);
+      li.appendChild(body);
+      li.appendChild(actions);
+      listEl.appendChild(li);
+    });
+  }
+
+  function iconButton(label, onClick, disabled, extraClass) {
+    var b = document.createElement("button");
+    b.className = "icon-btn" + (extraClass ? " " + extraClass : "");
+    b.textContent = label;
+    b.disabled = !!disabled;
+    b.addEventListener("click", onClick);
+    return b;
+  }
+
+  function activeTrackId() {
+    if (currentQueuePos < 0 || currentQueuePos >= currentQueue.length) return null;
+    return currentQueue[currentQueuePos];
+  }
+
+  // ---------- Delete (two-tap confirm, no window.confirm) ----------
+  var deleteTimer = null;
+  function handleDelete(id) {
+    if (pendingDeleteId === id) {
+      clearTimeout(deleteTimer);
+      pendingDeleteId = null;
+      deleteTrack(id).then(function () {
+        tracks = tracks.filter(function (t) { return t.id !== id; });
+        if (activeTrackId() === id) stopPlayback();
+        render();
+      });
+    } else {
+      pendingDeleteId = id;
+      render();
+      deleteTimer = setTimeout(function () {
+        pendingDeleteId = null;
+        render();
+      }, 3000);
+    }
+  }
+
+  // ---------- Reorder ----------
+  function moveTrack(index, dir) {
+    var target = index + dir;
+    if (target < 0 || target >= tracks.length) return;
+    var a = tracks[index], b = tracks[target];
+    var tmp = a.order;
+    a.order = b.order;
+    b.order = tmp;
+    Promise.all([putTrack(a), putTrack(b)]).then(function () {
+      tracks.sort(function (x, y) { return x.order - y.order; });
+      render();
+    });
+  }
+
+  // ---------- Import ----------
+  document.getElementById("import-zone").addEventListener("click", function () {
+    document.getElementById("file-input").click();
+  });
+
+  var importWarningEl = document.getElementById("import-warning");
+
+  // ファイル名の先頭の数字（例: "01-opening" → 1）を並び順のキーにする。
+  // 数字が見つからないファイルは、選んだ順番のまま末尾側に回す。
+  function extractOrderKey(name) {
+    var m = name.match(/^(\d+)/);
+    return m ? parseInt(m[1], 10) : null;
+  }
+
+  document.getElementById("file-input").addEventListener("change", function (e) {
+    var files = Array.prototype.slice.call(e.target.files || []);
+    if (files.length === 0) return;
+    importWarningEl.style.display = "none";
+    var unnumberedBase = 100000;
+    var failed = [];
+    var chain = Promise.resolve();
+    files.forEach(function (file, i) {
+      chain = chain.then(function () {
+        var key = extractOrderKey(file.name);
+        var order = (key !== null) ? key : (unnumberedBase + i);
+        return importOneFile(file, order).then(function (ok) {
+          if (!ok) failed.push(file.name);
+        });
+      });
+    });
+    chain.then(function () {
+      tracks.sort(function (a, b) { return a.order - b.order; });
+      render();
+      if (failed.length > 0) {
+        importWarningEl.textContent = "音声として読み込めなかったファイル: " + failed.join(", ");
+        importWarningEl.style.display = "block";
+      }
+    });
+    e.target.value = "";
+  });
+
+  function importOneFile(file, order) {
+    return new Promise(function (resolve) {
+      var probe = document.createElement("audio");
+      var url = URL.createObjectURL(file);
+      probe.preload = "metadata";
+      probe.src = url;
+      probe.onloadedmetadata = function () {
+        var duration = probe.duration;
+        URL.revokeObjectURL(url);
+        addTrack({ name: file.name, blob: file, order: order, duration: duration }).then(function (id) {
+          tracks.push({ id: id, name: file.name, blob: file, order: order, duration: duration });
+          resolve(true);
+        });
+      };
+      probe.onerror = function () {
+        URL.revokeObjectURL(url);
+        resolve(false);
+      };
+    });
+  }
+
+  // ---------- Playback ----------
+  function playFrom(index) {
+    currentQueue = tracks.slice(index).map(function (t) { return t.id; });
+    currentQueuePos = 0;
+    loadAndPlayCurrent();
+  }
+
+  document.getElementById("play-all-btn").addEventListener("click", function () {
+    if (tracks.length === 0) return;
+    playFrom(0);
+  });
+
+  function loadAndPlayCurrent() {
+    var id = activeTrackId();
+    var track = tracks.find(function (t) { return t.id === id; });
+    if (!track) { stopPlayback(); return; }
+
+    if (currentObjectURL) URL.revokeObjectURL(currentObjectURL);
+    currentObjectURL = URL.createObjectURL(track.blob);
+    audio.src = currentObjectURL;
+    audio.playbackRate = currentSpeed;
+    audio.play().catch(function () {});
+    nowPlayingEl.textContent = track.name;
+    playerBar.classList.add("visible");
+    render();
+  }
+
+  function stopPlayback() {
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+    if (currentObjectURL) { URL.revokeObjectURL(currentObjectURL); currentObjectURL = null; }
+    currentQueue = [];
+    currentQueuePos = -1;
+    playerBar.classList.remove("visible");
+    render();
+  }
+
+  audio.addEventListener("ended", function () {
+    if (currentQueuePos + 1 < currentQueue.length) {
+      currentQueuePos += 1;
+      loadAndPlayCurrent();
+    } else {
+      stopPlayback();
+    }
+  });
+
+  audio.addEventListener("play", function () {
+    iconPlay.style.display = "none";
+    iconPause.style.display = "block";
+  });
+  audio.addEventListener("pause", function () {
+    iconPlay.style.display = "block";
+    iconPause.style.display = "none";
+  });
+
+  playPauseBtn.addEventListener("click", function () {
+    if (!audio.src) return;
+    if (audio.paused) audio.play().catch(function () {});
+    else audio.pause();
+  });
+
+  document.getElementById("back10").addEventListener("click", function () {
+    if (!audio.src) return;
+    audio.currentTime = Math.max(0, audio.currentTime - 10);
+  });
+  document.getElementById("fwd10").addEventListener("click", function () {
+    if (!audio.src) return;
+    audio.currentTime = Math.min(audio.duration || audio.currentTime, audio.currentTime + 10);
+  });
+
+  var seeking = false;
+  seekEl.addEventListener("input", function () {
+    seeking = true;
+    if (audio.duration) {
+      var t = (seekEl.value / 1000) * audio.duration;
+      timeCurrentEl.textContent = fmtTime(t);
+    }
+  });
+  seekEl.addEventListener("change", function () {
+    if (audio.duration) audio.currentTime = (seekEl.value / 1000) * audio.duration;
+    seeking = false;
+  });
+
+  audio.addEventListener("timeupdate", function () {
+    if (seeking) return;
+    timeCurrentEl.textContent = fmtTime(audio.currentTime);
+    if (audio.duration) {
+      seekEl.value = Math.round((audio.currentTime / audio.duration) * 1000);
+      timeDurationEl.textContent = fmtTime(audio.duration);
+    }
+  });
+  audio.addEventListener("loadedmetadata", function () {
+    timeDurationEl.textContent = fmtTime(audio.duration);
+  });
+
+  var currentSpeed = 1;
+  var speedButtons = document.querySelectorAll("#speed-select button");
+  speedButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      currentSpeed = parseFloat(btn.getAttribute("data-speed"));
+      audio.playbackRate = currentSpeed;
+      speedButtons.forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+    });
+  });
+
+  // ---------- Theme ----------
+  if (localStorage.getItem("pref-theme") === "dark") {
+    document.body.classList.add("dark");
+  } else if (localStorage.getItem("pref-theme") === "light") {
+    document.body.classList.remove("dark");
+  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    document.body.classList.add("dark");
+  }
+  document.getElementById("theme-toggle").addEventListener("click", function () {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("pref-theme", document.body.classList.contains("dark") ? "dark" : "light");
+  });
+
+  // ---------- Init ----------
+  openDB().then(function (d) {
+    db = d;
+    return getAllTracks();
+  }).then(function (list) {
+    tracks = list;
+    render();
+  }).catch(function (err) {
+    emptyEl.textContent = "音源データベースを開けませんでした。ブラウザの設定をご確認ください。";
+    emptyEl.style.display = "block";
+    console.error(err);
+  });
+})();
+</script>
+
+</body>
+</html>
+
