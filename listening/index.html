@@ -145,6 +145,54 @@
   #import-zone:active { opacity: 0.75; }
   #file-input { display: none; }
 
+  #resume-bar {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    margin-top: 12px;
+    padding: 4px;
+    border: 1px solid var(--amber);
+    border-radius: 12px;
+    background: transparent;
+  }
+  #resume-play {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    border: none;
+    background: none;
+    padding: 10px 8px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--amber-strong);
+  }
+  #resume-play svg { width: 19px; height: 19px; flex-shrink: 0; }
+  #resume-play span.resume-label,
+  #resume-play span.resume-detail { display: block; }
+  #resume-play span.resume-label {
+    font-size: 13.5px;
+    font-weight: 700;
+  }
+  #resume-play span.resume-detail {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #resume-dismiss {
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    color: var(--ink-soft);
+    font-size: 15px;
+    padding: 8px 10px;
+    cursor: pointer;
+  }
+
   #all-through-bar {
     display: none;
     align-items: center;
@@ -370,6 +418,17 @@
   </button>
   <input id="file-input" type="file" multiple>
   <p id="import-warning" style="display:none; margin: 10px 2px 0; font-size: 13px; color: var(--danger); line-height: 1.6;"></p>
+
+  <div id="resume-bar" style="display:none;">
+    <button id="resume-play">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      <span>
+        <span class="resume-label">前回の続きから再生</span>
+        <span class="resume-detail" id="resume-detail"></span>
+      </span>
+    </button>
+    <button id="resume-dismiss" aria-label="閉じる">✕</button>
+  </div>
 
   <div id="all-through-bar">
     <span class="count mono" id="track-count">0 tracks</span>
@@ -689,19 +748,30 @@
     playFrom(0);
   });
 
-  function loadAndPlayCurrent() {
+  function loadAndPlayCurrent(resumeTime) {
     var id = activeTrackId();
     var track = tracks.find(function (t) { return t.id === id; });
     if (!track) { stopPlayback(); return; }
 
+    resumeBarEl.style.display = "none";
     if (currentObjectURL) URL.revokeObjectURL(currentObjectURL);
     currentObjectURL = URL.createObjectURL(track.blob);
     audio.src = currentObjectURL;
     audio.playbackRate = currentSpeed;
-    audio.play().catch(function () {});
     nowPlayingEl.textContent = track.name;
     playerBar.classList.add("visible");
     render();
+
+    if (resumeTime && resumeTime > 0) {
+      var onMeta = function () {
+        audio.currentTime = Math.min(resumeTime, audio.duration ? Math.max(audio.duration - 1, 0) : resumeTime);
+        audio.play().catch(function () {});
+        audio.removeEventListener("loadedmetadata", onMeta);
+      };
+      audio.addEventListener("loadedmetadata", onMeta);
+    } else {
+      audio.play().catch(function () {});
+    }
   }
 
   function stopPlayback() {
@@ -712,8 +782,75 @@
     currentQueue = [];
     currentQueuePos = -1;
     playerBar.classList.remove("visible");
+    clearResumeState();
     render();
   }
+
+  // ---------- Resume (前回の続きから再生) ----------
+  var RESUME_KEY = "listening-resume-v1";
+
+  function saveResumeState() {
+    var id = activeTrackId();
+    if (!id || !audio.duration) return;
+    try {
+      localStorage.setItem(RESUME_KEY, JSON.stringify({
+        trackId: id,
+        time: audio.currentTime,
+        queue: currentQueue,
+        queuePos: currentQueuePos
+      }));
+    } catch (e) {}
+  }
+
+  function loadResumeState() {
+    try {
+      var raw = localStorage.getItem(RESUME_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function clearResumeState() {
+    try { localStorage.removeItem(RESUME_KEY); } catch (e) {}
+    resumeBarEl.style.display = "none";
+  }
+
+  function showResumeBarIfAny() {
+    var state = loadResumeState();
+    if (!state) return;
+    var track = tracks.find(function (t) { return t.id === state.trackId; });
+    if (!track) { clearResumeState(); return; }
+    resumeDetailEl.textContent = track.name + " · " + fmtTime(state.time) + "〜";
+    resumeBarEl.style.display = "flex";
+  }
+
+  var resumeBarEl = document.getElementById("resume-bar");
+  var resumeDetailEl = document.getElementById("resume-detail");
+
+  document.getElementById("resume-play").addEventListener("click", function () {
+    var state = loadResumeState();
+    if (!state) return;
+    var idx = tracks.findIndex(function (t) { return t.id === state.trackId; });
+    if (idx < 0) { clearResumeState(); return; }
+
+    var savedQueue = Array.isArray(state.queue)
+      ? state.queue.filter(function (id) { return tracks.some(function (t) { return t.id === id; }); })
+      : [];
+    if (savedQueue.length > 0 && savedQueue.indexOf(state.trackId) >= 0) {
+      currentQueue = savedQueue;
+      currentQueuePos = savedQueue.indexOf(state.trackId);
+    } else {
+      currentQueue = tracks.slice(idx).map(function (t) { return t.id; });
+      currentQueuePos = 0;
+    }
+    resumeBarEl.style.display = "none";
+    loadAndPlayCurrent(state.time);
+  });
+
+  document.getElementById("resume-dismiss").addEventListener("click", function () {
+    clearResumeState();
+  });
 
   audio.addEventListener("ended", function () {
     if (currentQueuePos + 1 < currentQueue.length) {
@@ -731,6 +868,20 @@
   audio.addEventListener("pause", function () {
     iconPlay.style.display = "block";
     iconPause.style.display = "none";
+    saveResumeState();
+  });
+
+  var lastResumeSave = 0;
+  audio.addEventListener("timeupdate", function () {
+    var now = Date.now();
+    if (now - lastResumeSave > 4000) {
+      lastResumeSave = now;
+      saveResumeState();
+    }
+  });
+  window.addEventListener("pagehide", saveResumeState);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") saveResumeState();
   });
 
   playPauseBtn.addEventListener("click", function () {
@@ -804,6 +955,7 @@
   }).then(function (list) {
     tracks = list;
     render();
+    showResumeBarIfAny();
   }).catch(function (err) {
     emptyEl.textContent = "音源データベースを開けませんでした。ブラウザの設定をご確認ください。";
     emptyEl.style.display = "block";
@@ -814,4 +966,3 @@
 
 </body>
 </html>
-
