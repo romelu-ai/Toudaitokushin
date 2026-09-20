@@ -21,7 +21,13 @@
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(180deg, rgba(18,21,27,0.22) 0%, rgba(18,21,27,0.55) 42%, rgba(18,21,27,0.86) 78%, var(--bg) 100%),
+    url('assets/site-bg.jpg');
+  background-repeat: no-repeat, no-repeat;
+  background-position: top center, top center;
+  background-size: 100% 100%, 100% auto;
   color:var(--ink);
   font-family:'Noto Sans JP', sans-serif;
   min-height:100vh;
@@ -38,20 +44,10 @@ body{
 .hero{
   position:relative;
   min-height:440px;
-  margin:0 -22px;
-  padding:0 22px;
-  background-color:var(--bg);
-  background-image:
-    linear-gradient(115deg, rgba(18,21,27,0.92) 0%, rgba(18,21,27,0.55) 38%, rgba(18,21,27,0.05) 62%),
-    url('assets/yasuda-full.jpg');
-  background-size: cover, cover;
-  background-position: center, center top;
-  background-repeat: no-repeat, no-repeat;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  padding-top:30px;
-  padding-bottom:26px;
+  padding:30px 0 26px;
 }
 .eyebrow-tick{
   width:26px; height:1px;
@@ -200,25 +196,8 @@ h1{
 }
 
 /* ---------- Bottom row ---------- */
-.bottom-row{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:16px;
-  margin-top:26px;
-}
-.gate-thumb{
-  width:132px;
-  height:98px;
-  object-fit:cover;
-  object-position:center 35%;
-  border-radius:6px;
-  border:1px solid var(--line);
-  box-shadow:0 10px 26px -10px rgba(0,0,0,0.7);
-  display:block;
-  flex-shrink:0;
-}
 footer.site-footer{
+  margin-top:26px;
   font-size:11px;
   color:var(--ink-soft);
   letter-spacing:0.05em;
@@ -253,10 +232,7 @@ footer.site-footer{
 
   <nav class="toc" id="toc"></nav>
 
-  <div class="bottom-row">
-    <img class="gate-thumb" src="assets/hero-gate.jpg" alt="赤門">
-    <footer class="site-footer">個人学習用</footer>
-  </div>
+  <footer class="site-footer">個人学習用</footer>
 
 </div>
 
