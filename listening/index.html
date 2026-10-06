@@ -890,14 +890,45 @@
     else audio.pause();
   });
 
-  document.getElementById("back10").addEventListener("click", function () {
+  function skipForward(seconds) {
     if (!audio.src) return;
-    audio.currentTime = Math.max(0, audio.currentTime - 10);
-  });
-  document.getElementById("fwd10").addEventListener("click", function () {
+    var dur = audio.duration;
+    var target = audio.currentTime + seconds;
+    if (!dur || target <= dur) {
+      audio.currentTime = Math.min(dur || target, target);
+      return;
+    }
+    var overflow = target - dur;
+    if (currentQueuePos + 1 < currentQueue.length) {
+      currentQueuePos += 1;
+      loadAndPlayCurrent(Math.max(0, overflow));
+    } else {
+      audio.currentTime = dur;
+    }
+  }
+
+  function skipBackward(seconds) {
     if (!audio.src) return;
-    audio.currentTime = Math.min(audio.duration || audio.currentTime, audio.currentTime + 10);
-  });
+    var target = audio.currentTime - seconds;
+    if (target >= 0) {
+      audio.currentTime = target;
+      return;
+    }
+    var deficit = -target;
+    if (currentQueuePos > 0) {
+      var prevId = currentQueue[currentQueuePos - 1];
+      var prevTrack = tracks.find(function (t) { return t.id === prevId; });
+      currentQueuePos -= 1;
+      var prevDur = prevTrack && prevTrack.duration ? prevTrack.duration : null;
+      var startAt = prevDur ? Math.max(0, prevDur - deficit) : 0;
+      loadAndPlayCurrent(startAt);
+    } else {
+      audio.currentTime = 0;
+    }
+  }
+
+  document.getElementById("back10").addEventListener("click", function () { skipBackward(10); });
+  document.getElementById("fwd10").addEventListener("click", function () { skipForward(10); });
 
   var seeking = false;
   seekEl.addEventListener("input", function () {
